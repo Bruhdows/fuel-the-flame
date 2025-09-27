@@ -13,4 +13,4 @@ func _ready() -> void:
 	sword.damage = 10
 	player.add_item(sword)
 	
-	ENEMY
+	var enemy = ENEMY.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE)
