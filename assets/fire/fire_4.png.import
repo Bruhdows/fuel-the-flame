@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cavgu58chgkm4"
-path="res://.godot/imported/Group 4 - 1_1.png-3db476131b0a2b1016e85d707a3d34f0.ctex"
+uid="uid://dfrkgfi8hd80"
+path="res://.godot/imported/fire_4.png-2a57a51c09c413f256613b486eb3645b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Pixel fire asset pack v1.2/Pixel Fire Asset Pack Floored/fire asset red floored/Group 4 - 1/Group 4 - 1_1.png"
-dest_files=["res://.godot/imported/Group 4 - 1_1.png-3db476131b0a2b1016e85d707a3d34f0.ctex"]
+source_file="res://assets/fire/fire_4.png"
+dest_files=["res://.godot/imported/fire_4.png-2a57a51c09c413f256613b486eb3645b.ctex"]
 
 [params]
 

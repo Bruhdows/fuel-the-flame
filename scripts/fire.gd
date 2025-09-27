@@ -12,11 +12,14 @@ var elapsed_time: float = 0.0  # tracks total time in seconds
 func _ready() -> void:
 	fire_value.text = str(current_value)
 	set_process(true)  # enable _process to count elapsed_time
+	$FireAnimation.play("Burn")
+
 
 
 func _process(delta: float) -> void:
 	elapsed_time += delta
 	if time_label:
+		@warning_ignore("integer_division")
 		var minutes = int(elapsed_time) / 60
 		var seconds = int(elapsed_time) % 60
 		time_label.text = "%02d:%02d" % [minutes, seconds]
