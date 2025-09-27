@@ -21,8 +21,13 @@ var min_spawn_distance: float = 10.0 * 50  # 20 blocks * 50 pixels per block
 var max_spawn_distance: float = 20.0 * 50  # 30 blocks * 50 pixels per block
 
 func create_sword_item() -> ItemResource:
-	var sword_texture = preload("res://assets/wooden_sword.png")
-	return ItemResource.new("Wooden Sword", sword_texture, "An weak wooden sword", 1, "weapon")
+	var texture = preload("res://assets/wooden_sword.png")
+	return ItemResource.new("Wooden Sword", texture, "An weak wooden sword", 1, "weapon")
+
+func create_wood_item() -> ItemResource:
+	var texture = preload("res://assets/wood.png")
+	return ItemResource.new("Wood", texture, "", 1)
+
 
 func _ready() -> void:
 	var sword = create_sword_item()
