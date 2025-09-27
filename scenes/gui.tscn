@@ -1,0 +1,88 @@
+[gd_scene load_steps=5 format=3 uid="uid://ka4mtn1tjq76"]
+
+[ext_resource type="Script" uid="uid://dafpntkmhl2h1" path="res://scripts/control.gd" id="1_efmwq"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lbhrr"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.101960786, 0.101960786, 0.101960786, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_detail = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_iywne"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(1, 1, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_detail = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p57ef"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(1, 0, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_detail = 6
+
+[node name="GUI" type="CanvasLayer"]
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_efmwq")
+
+[node name="FoodBar" type="ProgressBar" parent="Control"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -160.0
+offset_top = -101.0
+offset_right = 176.0
+offset_bottom = -74.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/background = SubResource("StyleBoxFlat_lbhrr")
+theme_override_styles/fill = SubResource("StyleBoxFlat_iywne")
+value = 50.0
+show_percentage = false
+
+[node name="HealthBar" type="ProgressBar" parent="Control"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -160.0
+offset_top = -132.0
+offset_right = 176.0
+offset_bottom = -105.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/background = SubResource("StyleBoxFlat_lbhrr")
+theme_override_styles/fill = SubResource("StyleBoxFlat_p57ef")
+value = 50.0
+show_percentage = false

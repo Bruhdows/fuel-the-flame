@@ -40,7 +40,7 @@ func _ready():
 
 func setup_held_item_sprite():
 	held_item_sprite = Sprite2D.new()
-	held_item_sprite.position = Vector2(0, 0)  # Position relative to player
+	held_item_sprite.position = Vector2(0, 0)
 	held_item_sprite.scale = Vector2(3, 3)
 	held_item_sprite.z_index = 1
 	add_child(held_item_sprite)
@@ -56,7 +56,6 @@ func get_input():
 	if Input.is_action_just_pressed("use_item"):
 		use_selected_item()
 	
-	# Sword swing input
 	if Input.is_action_just_pressed("swing") and not is_swinging:
 		swing_item()
 
@@ -85,18 +84,15 @@ func handle_swing_animation(delta):
 		var progress = swing_timer / swing_duration
 		
 		if progress >= 1.0:
-			# Swing complete
 			is_swinging = false
 			swing_timer = 0.0
 			held_item_sprite.rotation = original_held_item_rotation
 		else:
-			# Animate swing (rotate from -45° to +45° and back)
 			var swing_angle = sin(progress * PI) * PI/4  # 45 degrees max
 			held_item_sprite.rotation = original_held_item_rotation + swing_angle
 
 func update_held_item_position():
 	if held_item_sprite:
-		# Point towards mouse cursor
 		var mouse_pos = get_global_mouse_position()
 		var direction = (mouse_pos - global_position).normalized()
 		var angle = direction.angle()
@@ -105,7 +101,6 @@ func update_held_item_position():
 			held_item_sprite.rotation = angle
 			original_held_item_rotation = angle
 		
-		# Position item relative to player
 		held_item_sprite.position = direction * 32
 
 
@@ -130,20 +125,15 @@ func swing_item():
 		swing_timer = 0.0
 		print("Swinging ", current_item.name, "!")
 		
-		# Check for enemies in swing range
 		check_swing_damage()
 
-# Add this to your player script
 func check_swing_damage():
-	# Create a temporary area to detect enemies in swing range
 	var space_state = get_world_2d().direct_space_state
 	var swing_range = 48.0
 	
-	# Get direction towards mouse
 	var mouse_pos = get_global_mouse_position()
 	var direction = (mouse_pos - global_position).normalized()
 	
-	# Create shape query for swing area
 	var query = PhysicsShapeQueryParameters2D.new()
 	var circle_shape = CircleShape2D.new()
 	circle_shape.radius = swing_range
@@ -222,7 +212,6 @@ func consume_food_item(food_item: ItemResource):
 	update_food_bar()
 	print("Consumed ", food_item.name, " (+", food_value, " food)")
 	
-	# Remove consumed item
 	remove_item(selected_slot)
 
 func take_damage(amount: float):
