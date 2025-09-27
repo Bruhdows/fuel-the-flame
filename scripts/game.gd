@@ -4,7 +4,7 @@ extends Node2D
 
 func create_sword_item() -> ItemResource:
 	var sword_texture = preload("res://assets/wooden_sword.png")
-	return ItemResource.new("Wooden Sword", sword_texture, "An weak wooden sword", 1)
+	return ItemResource.new("Wooden Sword", sword_texture, "An weak wooden sword", 1, "weapon")
 	
 func _ready() -> void:
 	var sword = create_sword_item()

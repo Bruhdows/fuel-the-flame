@@ -2,6 +2,7 @@ extends Control
 
 @onready var player: CharacterBody2D = %Player
 var slot_buttons = []
+var slot_backgrounds = []
 
 func _ready():
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -33,13 +34,18 @@ func create_inventory_slots():
 	add_child(hbox)
 	
 	for i in range(5):
-		# Use TextureButton instead of Button for texture display
-		var button = TextureButton.new()
-		button.custom_minimum_size = Vector2(slot_size, slot_size)
-		button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
-		button.pressed.connect(_on_slot_pressed.bind(i))
+		# Create a container for each slot
+		var slot_container = Control.new()
+		slot_container.custom_minimum_size = Vector2(slot_size, slot_size)
 		
-		# Add background styling for inventory slots
+		# Create background panel
+		var background = Panel.new()
+		background.anchor_left = 0
+		background.anchor_right = 1
+		background.anchor_top = 0
+		background.anchor_bottom = 1
+		
+		# Style the background panel
 		var style_box = StyleBoxFlat.new()
 		style_box.bg_color = Color.GRAY
 		style_box.border_width_left = 2
@@ -47,10 +53,27 @@ func create_inventory_slots():
 		style_box.border_width_top = 2
 		style_box.border_width_bottom = 2
 		style_box.border_color = Color.WHITE
-		button.add_theme_stylebox_override("normal", style_box)
 		
-		hbox.add_child(button)
+		background.add_theme_stylebox_override("panel", style_box)
+		slot_container.add_child(background)
+		slot_backgrounds.append(background)
+		
+		# Create the texture button on top
+		var button = TextureButton.new()
+		button.anchor_left = 0
+		button.anchor_right = 1
+		button.anchor_top = 0
+		button.anchor_bottom = 1
+		button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
+		button.pressed.connect(_on_slot_pressed.bind(i))
+		
+		# Make the button transparent so background shows through
+		button.modulate = Color.WHITE
+		
+		slot_container.add_child(button)
 		slot_buttons.append(button)
+		
+		hbox.add_child(slot_container)
 	
 	highlight_slot(0)
 
@@ -62,18 +85,25 @@ func _on_inventory_changed():
 			slot_buttons[i].texture_normal = null
 
 func _on_slot_selected(slot_index: int):
-	for button in slot_buttons:
-		button.modulate = Color.WHITE
-	slot_buttons[slot_index].modulate = Color.YELLOW
+	highlight_slot(slot_index)
 
 func _on_slot_pressed(slot_index: int):
 	player.selected_slot = slot_index
 	player.slot_selected.emit(slot_index)
 	
 func highlight_slot(slot_index: int):
-	for i in range(slot_buttons.size()):
-		var style_box = slot_buttons[i].get_theme_stylebox("normal")
+	for i in range(slot_backgrounds.size()):
+		# Create new style for each background to avoid shared references
+		var style_box = StyleBoxFlat.new()
+		style_box.bg_color = Color.GRAY
+		style_box.border_width_left = 2
+		style_box.border_width_right = 2
+		style_box.border_width_top = 2
+		style_box.border_width_bottom = 2
+		
 		if i == slot_index:
 			style_box.border_color = Color.YELLOW
 		else:
 			style_box.border_color = Color.WHITE
+			
+		slot_backgrounds[i].add_theme_stylebox_override("panel", style_box)
