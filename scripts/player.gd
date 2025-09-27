@@ -40,7 +40,7 @@ func _ready():
 
 func setup_held_item_sprite():
 	held_item_sprite = Sprite2D.new()
-	held_item_sprite.position = Vector2(20, 20)  # Position relative to player
+	held_item_sprite.position = Vector2(0, 0)  # Position relative to player
 	held_item_sprite.scale = Vector2(3, 3)
 	held_item_sprite.z_index = 1
 	add_child(held_item_sprite)
