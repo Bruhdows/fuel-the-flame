@@ -13,6 +13,7 @@ var health_regen_rate = 10.0
 var food_consumption_rate = 5.0
 var movement_food_decay_rate = 0.5
 var is_moving = false
+var elapsed_time: float = 0.0
 
 # Item holding system
 var held_item_sprite: Sprite2D
@@ -44,6 +45,9 @@ func setup_held_item_sprite():
 	held_item_sprite.scale = Vector2(3, 3)
 	held_item_sprite.z_index = 1
 	add_child(held_item_sprite)
+
+func _process(delta: float) -> void:
+	elapsed_time += delta
 
 func get_input():
 	var input_direction = Input.get_vector("left", "right", "up", "down")
@@ -299,6 +303,12 @@ func die():
 	print("Player died!")
 	player_died.emit()
 
+	# Save player's elapsed time instead of fire's
+	get_tree().root.set_meta("final_game_time", int(elapsed_time))
+	call_deferred("_go_to_game_ending")
+
+func _go_to_game_ending():
+	get_tree().change_scene_to_file("res://scenes/game_ending.tscn")
 func update_health_bar():
 	if health_bar:
 		health_bar.value = (current_health / max_health) * 100

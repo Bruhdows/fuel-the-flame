@@ -1,6 +1,6 @@
 extends Node2D
+const ENEMY = preload("uid://wtupsuect0s4")
 
-const ENEMY = preload("uid://bgdracsuhgysh")
 
 @onready var time_label: Label = $GUI/GUIControl/TimeLabel
 @onready var wave_label: Label = $GUI/GUIControl/WaveLabel
