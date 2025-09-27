@@ -1,13 +1,22 @@
-[gd_scene load_steps=4 format=3 uid="uid://cty70niresr6w"]
+[gd_scene load_steps=5 format=3 uid="uid://b0rk1wxu4voay"]
 
 [ext_resource type="Script" uid="uid://duippwikiy61w" path="res://scripts/fire.gd" id="1_xqmqg"]
 [ext_resource type="Texture2D" uid="uid://bxewcgaicsghl" path="res://icon.svg" id="2_g5mbl"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_xqmqg"]
+radius = 567.1
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_p57ef"]
 size = Vector2(128, 128)
 
 [node name="Fire" type="StaticBody2D"]
 script = ExtResource("1_xqmqg")
+
+[node name="NIGGER3000" type="Area2D" parent="."]
+unique_name_in_owner = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="NIGGER3000"]
+shape = SubResource("CircleShape2D_xqmqg")
 
 [node name="Icon" type="Sprite2D" parent="."]
 modulate = Color(1, 0, 0, 1)
