@@ -103,7 +103,6 @@ func update_held_item_position():
 		
 		held_item_sprite.position = direction * 32
 
-
 func update_held_item_display():
 	if held_item_sprite:
 		var current_item = get_selected_item()
@@ -126,6 +125,7 @@ func swing_item():
 		print("Swinging ", current_item.name, "!")
 		
 		check_swing_damage()
+		check_tree_damage()
 
 func check_swing_damage():
 	var space_state = get_world_2d().direct_space_state
@@ -151,6 +151,41 @@ func check_swing_damage():
 				damage = current_item.get_damage()
 			body.take_damage(damage)
 			print("Hit enemy for ", damage, " damage!")
+
+func check_tree_damage():
+	var swing_range = 64.0  # Increased range for better detection
+	var mouse_pos = get_global_mouse_position()
+	var direction = (mouse_pos - global_position).normalized()
+	
+	# Use Area2D overlap detection instead of distance calculation
+	var space_state = get_world_2d().direct_space_state
+	var query = PhysicsPointQueryParameters2D.new()
+	query.position = global_position + direction * swing_range
+	query.collision_mask = 16  # Set trees to collision layer 5 (bit 16)
+	
+	var result = space_state.intersect_point(query)
+	
+	# Alternative method: Check all trees in range
+	var trees = get_tree().get_nodes_in_group("trees")
+	for tree in trees:
+		if tree and is_instance_valid(tree):
+			var distance = global_position.distance_to(tree.global_position)
+			if distance <= swing_range:
+				# Check if tree is in the swing direction
+				var tree_direction = (tree.global_position - global_position).normalized()
+				var dot_product = direction.dot(tree_direction)
+				
+				# Only hit trees in front of the player (dot product > 0.5 means roughly same direction)
+				if dot_product > 0.5:
+					var current_item = get_selected_item()
+					var damage = 15.0
+					if current_item and current_item.has_method("get_damage"):
+						damage = current_item.get_damage() * 0.6
+					
+					if tree.has_method("take_damage"):
+						tree.take_damage(damage)
+						print("Hit tree for ", damage, " damage!")
+					break  # Only hit one tree per swing
 
 func handle_food_decay(delta):
 	if is_moving and current_food > 0:
