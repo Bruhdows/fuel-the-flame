@@ -137,7 +137,7 @@ func swing_item():
 func check_swing_damage():
 	# Create a temporary area to detect enemies in swing range
 	var space_state = get_world_2d().direct_space_state
-	var swing_range = 64.0
+	var swing_range = 48.0
 	
 	# Get direction towards mouse
 	var mouse_pos = get_global_mouse_position()
