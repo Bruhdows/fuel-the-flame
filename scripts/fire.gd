@@ -1,9 +1,8 @@
 extends StaticBody2D
 
-# Reference the label by its actual name
 @onready var fire_value: Label = $FireProgress
 
-var current_value: int = 150  # starting value
+var current_value: int = 150
 
 func _ready() -> void:
 	fire_value.text = str(current_value)
