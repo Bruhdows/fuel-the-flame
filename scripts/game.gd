@@ -1,6 +1,7 @@
 extends Node2D
-const ENEMY = preload("uid://wtupsuect0s4")
 
+const ENEMY = preload("uid://wtupsuect0s4")
+const TREE = preload("uid://b8p16piq1eels")
 
 @onready var time_label: Label = $GUI/GUIControl/TimeLabel
 @onready var wave_label: Label = $GUI/GUIControl/WaveLabel
@@ -27,11 +28,25 @@ var experience_multiplier: float = 1.5  # XP requirement multiplier per level
 var min_spawn_distance: float = 10.0 * 50  # 20 blocks * 50 pixels per block
 var max_spawn_distance: float = 20.0 * 50  # 30 blocks * 50 pixels per block
 
+# Tree spawning system
+var tree_spawn_radius: float = 50.0 * 50  # 50 blocks radius around player
+var min_tree_distance_from_player: float = 10.0 * 50  # 10 blocks minimum distance
+var max_trees_in_world: int = 150  # Maximum trees at once
+var tree_spawn_timer: float = 0.0
+var tree_spawn_interval: float = 1.0  # Try to spawn tree every second
+var trees_per_spawn_attempt: int = 3  # Attempt to spawn 3 trees per interval
+var active_trees: Array = []
+var spawned_tree_positions: Array = []  # Track tree positions to avoid overlap
+var min_tree_distance: float = 3.0 * 50  # Minimum 3 blocks between trees
+
 # Enemy tracking for experience
 var active_enemies: Array = []
 
 signal enemy_died(enemy, experience_value)
 signal player_leveled_up(new_level)
+signal tree_spawned(tree_position)
+
+var dropped_item_scene = preload("res://scenes/dropped_item.tscn")
 
 func create_sword_item() -> ItemResource:
 	var texture = preload("res://assets/wooden_sword.png")
@@ -53,9 +68,17 @@ func _ready() -> void:
 	# Initialize experience system
 	setup_experience_system()
 	
+	# Initialize tree spawning
+	setup_tree_spawning()
+	
 	# Connect player signals if available
 	if player.has_signal("experience_gained"):
 		player.experience_gained.connect(_on_player_gained_experience)
+
+func setup_tree_spawning():
+	"""Initialize the tree spawning system"""
+	# Spawn initial trees around the player
+	spawn_initial_trees()
 
 func setup_experience_system():
 	# Set up the level bar
@@ -73,6 +96,7 @@ func _process(delta: float) -> void:
 	game_time += delta
 	wave_timer += delta
 	spawn_timer += delta
+	tree_spawn_timer += delta
 	
 	# Update UI
 	update_time_label()
@@ -85,7 +109,229 @@ func _process(delta: float) -> void:
 	if spawn_timer >= spawn_interval and enemies_spawned_this_wave < enemies_per_wave:
 		spawn_random_enemy()
 		spawn_timer = 0.0
+	
+	# Handle tree spawning
+	if tree_spawn_timer >= tree_spawn_interval:
+		attempt_tree_spawning()
+		tree_spawn_timer = 0.0
+	
+	# Clean up distant trees to maintain performance
+	cleanup_distant_trees()
 
+func spawn_initial_trees():
+	"""Spawn initial trees around the player when the game starts"""
+	var initial_tree_count = 50  # Spawn 50 trees initially
+	
+	for i in initial_tree_count:
+		var tree_position = get_random_tree_spawn_position()
+		if tree_position != Vector2.ZERO:  # Valid position found
+			spawn_tree_at_position(tree_position)
+		
+		# Small delay to spread out spawning
+		await get_tree().process_frame
+
+func attempt_tree_spawning():
+	"""Attempt to spawn new trees if below maximum count"""
+	if active_trees.size() >= max_trees_in_world:
+		return
+	
+	var trees_to_spawn = min(trees_per_spawn_attempt, max_trees_in_world - active_trees.size())
+	
+	for i in trees_to_spawn:
+		var tree_position = get_random_tree_spawn_position()
+		if tree_position != Vector2.ZERO:  # Valid position found
+			spawn_tree_at_position(tree_position)
+
+func get_random_tree_spawn_position() -> Vector2:
+	"""Get a random valid position for tree spawning"""
+	var player_pos = player.global_position
+	var max_attempts = 20  # Prevent infinite loops
+	
+	for attempt in max_attempts:
+		# Generate random angle (0 to 2π radians)
+		var angle = randf() * TAU
+		
+		# Generate random distance between min distance and spawn radius
+		var distance = randf_range(min_tree_distance_from_player, tree_spawn_radius)
+		
+		# Calculate potential spawn position
+		var spawn_offset = Vector2.from_angle(angle) * distance
+		var potential_position = player_pos + spawn_offset
+		
+		# Check if position is valid (not too close to other trees)
+		if is_valid_tree_position(potential_position):
+			return potential_position
+	
+	# Return zero vector if no valid position found
+	return Vector2.ZERO
+
+func is_valid_tree_position(position: Vector2) -> bool:
+	"""Check if a position is valid for tree spawning"""
+	# Check distance from player
+	var distance_to_player = position.distance_to(player.global_position)
+	if distance_to_player < min_tree_distance_from_player:
+		return false
+	
+	# Check distance from existing trees
+	for tree_pos in spawned_tree_positions:
+		var distance_to_tree = position.distance_to(tree_pos)
+		if distance_to_tree < min_tree_distance:
+			return false
+	
+	# Check distance from active enemies (optional - prevents spawning too close to enemies)
+	for enemy in active_enemies:
+		if is_instance_valid(enemy):
+			var distance_to_enemy = position.distance_to(enemy.global_position)
+			if distance_to_enemy < 2.0 * 50:  # 2 blocks minimum from enemies
+				return false
+	
+	return true
+
+func spawn_tree_at_position(position: Vector2):
+	"""Spawn a tree at the specified position"""
+	var tree = TREE.instantiate(PackedScene.GEN_EDIT_STATE_MAIN)
+	tree.global_position = position
+	
+	# Add tree to tracking arrays
+	active_trees.append(tree)
+	spawned_tree_positions.append(position)
+	
+	# Set up tree properties if needed
+	setup_tree_properties(tree)
+	
+	# Add to scene
+	add_child(tree)
+	
+	# Emit signal for other systems
+	tree_spawned.emit(position)
+	
+	print("Tree spawned at: ", position)
+
+func setup_tree_properties(tree: Node):
+	"""Configure tree properties and connections"""
+	# Add tree to a group for easy management
+	tree.add_to_group("trees")
+	
+	# Connect tree destruction signal if available
+	if tree.has_signal("tree_destroyed"):
+		tree.tree_destroyed.connect(_on_tree_destroyed)
+	
+	# Set random tree variant if your tree scene supports it
+	if tree.has_method("set_tree_variant"):
+		var variant = randi() % 3  # Assuming 3 tree variants
+		tree.set_tree_variant(variant)
+	
+	# Random scale variation for visual diversity
+	var scale_variation = randf_range(0.8, 1.2)
+	tree.scale = Vector2(scale_variation, scale_variation)
+
+func cleanup_distant_trees():
+	"""Remove trees that are too far from the player to maintain performance"""
+	var player_pos = player.global_position
+	var cleanup_distance = tree_spawn_radius + 10.0 * 50  # Extra buffer
+	
+	for i in range(active_trees.size() - 1, -1, -1):  # Iterate backwards
+		var tree = active_trees[i]
+		if not is_instance_valid(tree):
+			# Remove invalid tree references
+			active_trees.remove_at(i)
+			if i < spawned_tree_positions.size():
+				spawned_tree_positions.remove_at(i)
+			continue
+		
+		var distance_to_player = tree.global_position.distance_to(player_pos)
+		if distance_to_player > cleanup_distance:
+			# Remove distant tree
+			remove_tree(i)
+
+func remove_tree(index: int):
+	"""Remove a tree by index"""
+	if index < 0 or index >= active_trees.size():
+		return
+	
+	var tree = active_trees[index]
+	if is_instance_valid(tree):
+		tree.queue_free()
+	
+	active_trees.remove_at(index)
+	if index < spawned_tree_positions.size():
+		spawned_tree_positions.remove_at(index)
+
+func _on_tree_destroyed(tree_node: Node):
+	"""Handle when a tree is destroyed (e.g., by player chopping)"""
+	var index = active_trees.find(tree_node)
+	if index != -1:
+		# Award experience for chopping tree
+		add_experience(15.0)  # 15 XP for chopping a tree
+		
+		# Drop wood item
+		var wood_item = create_wood_item()
+		if player.has_method("add_item_at_position"):
+			player.add_item_at_position(wood_item, tree_node.global_position)
+		
+		# Remove from tracking
+		active_trees.remove_at(index)
+		if index < spawned_tree_positions.size():
+			spawned_tree_positions.remove_at(index)
+		
+		print("Tree destroyed! Gained wood and experience.")
+
+# Enhanced spawn method that considers tree positions
+func get_random_spawn_position() -> Vector2:
+	"""Get a random position around the player at minimum distance, avoiding trees"""
+	var player_pos = player.global_position
+	var max_attempts = 30  # More attempts to avoid trees
+	
+	for attempt in max_attempts:
+		# Generate random angle (0 to 2π radians)
+		var angle = randf() * TAU
+		
+		# Generate random distance between min and max spawn distance
+		var distance = randf_range(min_spawn_distance, max_spawn_distance)
+		
+		# Calculate spawn position using polar coordinates
+		var spawn_offset = Vector2.from_angle(angle) * distance
+		var potential_position = player_pos + spawn_offset
+		
+		# Check if position is not too close to trees
+		var too_close_to_tree = false
+		for tree_pos in spawned_tree_positions:
+			if potential_position.distance_to(tree_pos) < 3.0 * 50:  # 3 blocks from trees
+				too_close_to_tree = true
+				break
+		
+		if not too_close_to_tree:
+			return potential_position
+	
+	# Fallback to original method if no clear space found
+	var angle = randf() * TAU
+	var distance = randf_range(min_spawn_distance, max_spawn_distance)
+	var spawn_offset = Vector2.from_angle(angle) * distance
+	return player_pos + spawn_offset
+
+# Additional tree management methods
+func get_trees_near_position(position: Vector2, radius: float) -> Array:
+	"""Get all trees within a certain radius of a position"""
+	var nearby_trees = []
+	for tree in active_trees:
+		if is_instance_valid(tree):
+			if tree.global_position.distance_to(position) <= radius:
+				nearby_trees.append(tree)
+	return nearby_trees
+
+func clear_trees_in_area(position: Vector2, radius: float):
+	"""Clear all trees in a specific area (useful for building/events)"""
+	var trees_to_remove = get_trees_near_position(position, radius)
+	for tree in trees_to_remove:
+		var index = active_trees.find(tree)
+		if index != -1:
+			remove_tree(index)
+
+func get_tree_count() -> int:
+	"""Get current number of active trees"""
+	return active_trees.size()
+
+# Keep all your existing methods unchanged below this line
 func spawn_random_enemy() -> void:
 	if not player:
 		return
@@ -131,7 +377,7 @@ func _on_player_gained_experience(amount: float):
 func add_experience(amount: float):
 	current_experience += amount
 	
-	# Check for level up
+	# Check for 	var item_to_drop = create_food_item()
 	while current_experience >= experience_to_next_level:
 		level_up()
 	
@@ -181,20 +427,6 @@ func update_experience_bar():
 		
 		# Optional: Add a tooltip or label showing exact numbers
 		level_bar.tooltip_text = str(int(current_experience)) + " / " + str(int(experience_to_next_level)) + " XP"
-
-func get_random_spawn_position() -> Vector2:
-	"""Get a random position around the player at minimum distance of 20 blocks"""
-	var player_pos = player.global_position
-	
-	# Generate random angle (0 to 2π radians)
-	var angle = randf() * TAU
-	
-	# Generate random distance between min and max spawn distance
-	var distance = randf_range(min_spawn_distance, max_spawn_distance)
-	
-	# Calculate spawn position using polar coordinates
-	var spawn_offset = Vector2.from_angle(angle) * distance
-	return player_pos + spawn_offset
 
 func advance_wave() -> void:
 	current_wave += 1
@@ -279,6 +511,12 @@ func _input(event):
 	# Debug: Press X to gain experience (remove this in final game)
 	if event.is_action_pressed("ui_accept"):  # Change to any debug key
 		add_debug_experience(25.0)
+	
+	# Debug: Press T to spawn tree manually
+	if event.is_action_pressed("ui_select"):  # Change to any debug key
+		var tree_pos = get_random_tree_spawn_position()
+		if tree_pos != Vector2.ZERO:
+			spawn_tree_at_position(tree_pos)
 
 # Getters for other systems
 func get_current_level() -> int:

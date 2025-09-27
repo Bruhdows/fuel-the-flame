@@ -1,4 +1,4 @@
-[gd_scene load_steps=49 format=3 uid="uid://c6oxbfa11gisf"]
+[gd_scene load_steps=46 format=3 uid="uid://c6oxbfa11gisf"]
 
 [ext_resource type="Script" uid="uid://bp4i28ybbk5i4" path="res://scripts/game.gd" id="1_p57ef"]
 [ext_resource type="Script" uid="uid://cru4dc0eb836x" path="res://scripts/player.gd" id="1_yqjtg"]
@@ -14,8 +14,6 @@
 [ext_resource type="Texture2D" uid="uid://ba6m273rdxbpl" path="res://assets/Hana Caraka - Topdown Tileset [sample]/Tileset/sand.png" id="8_264po"]
 [ext_resource type="Texture2D" uid="uid://b8jgvubnjd0x0" path="res://assets/Hana Caraka - Topdown Tileset [sample]/Tileset/Water/water - summer.png" id="9_1kice"]
 [ext_resource type="Texture2D" uid="uid://cicia88j2rnna" path="res://assets/Hana Caraka - Topdown Tileset [sample]/Props/Bridge - wood.png" id="11_5newe"]
-[ext_resource type="Texture2D" uid="uid://b0i1y3afb7qcr" path="res://assets/tree.png" id="12_dinhu"]
-[ext_resource type="Script" uid="uid://b31weklg532hv" path="res://scripts/tree.gd" id="13_trtic"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_trtic"]
 atlas = ExtResource("5_kvuet")
@@ -377,9 +375,6 @@ border_width_right = 2
 border_width_bottom = 2
 corner_detail = 6
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_kvuet"]
-size = Vector2(33.000008, 99.00001)
-
 [node name="Game" type="Node2D"]
 script = ExtResource("1_p57ef")
 
@@ -550,18 +545,3 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 32
 text = "TEST"
-
-[node name="Tree" type="Area2D" parent="."]
-position = Vector2(103, 0)
-script = ExtResource("13_trtic")
-
-[node name="Icon" type="Sprite2D" parent="Tree"]
-z_index = 1
-position = Vector2(7.6293945e-06, -9.536743e-07)
-scale = Vector2(2.5, 2.5)
-texture = ExtResource("12_dinhu")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Tree"]
-position = Vector2(1.5, -0.5000057)
-scale = Vector2(0.99999964, 0.99999964)
-shape = SubResource("RectangleShape2D_kvuet")

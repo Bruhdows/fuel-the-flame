@@ -188,6 +188,12 @@ func swing_item():
 		check_swing_damage()
 		check_tree_damage()
 		
+func create_food_item() -> ItemResource:
+	var texture = preload("res://assets/rotten.png")
+	var item = ItemResource.new("Rotten Beef", texture, "", 1, "food")
+	item.food_value = 20
+	return item
+		
 func check_swing_damage():
 	var space_state = get_world_2d().direct_space_state
 	var swing_range = 48.0
@@ -221,11 +227,18 @@ func check_swing_damage():
 			
 			print("Hit enemy for ", final_damage, " damage!")
 			
+			if randf() > 0.1:
+				var item_to_drop = create_food_item()
+				var dropped_item = dropped_item_scene.instantiate()
+				dropped_item.set_item(item_to_drop)
+				dropped_item.global_position = global_position + Vector2(0, -96)
+				get_parent().add_child(dropped_item)
+			
 			# Add experience for hitting enemies
 			add_experience(10)
 
 func check_tree_damage():
-	var swing_range = 64.0
+	var swing_range = 96.0
 	var mouse_pos = get_global_mouse_position()
 	var direction = (mouse_pos - global_position).normalized()
 	
