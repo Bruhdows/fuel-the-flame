@@ -50,6 +50,34 @@ var has_enemy_vision = false
 var chaos_timer = 0.0
 var chaos_interval = 30.0
 
+# Base movement and combat stats
+var base_movement_speed = 400.0
+var base_swing_duration = 0.3
+var base_damage = 25.0
+
+# Current movement and combat stats (modified by upgrades)
+var movement_speed = 400.0
+var swing_duration = 0.3
+var damage_multiplier = 1.0
+var swing_speed_multiplier = 1.0
+var movement_speed_multiplier = 1.0
+
+# Upgrade effects
+var damage_reduction = 0.0
+var lifesteal = 0.0
+var damage_reflection = 0.0
+var health_drain_rate = 0.0
+var food_efficiency_multiplier = 1.0
+var starvation_immunity_time = 0.0
+var starvation_timer = 0.0
+
+# Special upgrade flags
+var has_blood_pact = false
+var has_chaos_magic = false
+var has_enemy_vision = false
+var chaos_timer = 0.0
+var chaos_interval = 30.0
+
 # Item holding system
 var held_item_sprite: Sprite2D
 var is_swinging = false

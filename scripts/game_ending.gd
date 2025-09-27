@@ -3,13 +3,17 @@ extends Control
 @onready var game_title = $GameTitle
 @onready var start_button = $StartButton
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 @onready var score_label = $ScoreLabel
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 
 const BUTTON_OFFSET_Y = 50
 
 func _ready():
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 	_position_ui()
 	
@@ -20,10 +24,15 @@ func _ready():
 	
 	score_label.text = "Final time: " + format_time(final_time)
 =======
+=======
+>>>>>>> Stashed changes
 	if not game_title or not start_button:
 		push_error("GameTitle or StartButton node not found! Check node names/paths.")
 		return
 	_position_ui()
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 func _notification(what):
@@ -32,7 +41,11 @@ func _notification(what):
 
 func _position_ui():
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 	if not game_title or not start_button or not score_label:
+=======
+	if not game_title or not start_button:
+>>>>>>> Stashed changes
 =======
 	if not game_title or not start_button:
 >>>>>>> Stashed changes
@@ -41,7 +54,11 @@ func _position_ui():
 	var screen_size = get_viewport_rect().size
 	
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 	# --- Title ---
+=======
+	# --- Title (Label) ---
+>>>>>>> Stashed changes
 =======
 	# --- Title (Label) ---
 >>>>>>> Stashed changes
@@ -50,6 +67,7 @@ func _position_ui():
 		50
 	)
 	
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 	# --- Score label (under title) ---
 	score_label.position = Vector2(
@@ -73,6 +91,8 @@ func format_time(seconds: int) -> String:
 	var secs = seconds % 60
 	return "%02d:%02d" % [minutes, secs]
 =======
+=======
+>>>>>>> Stashed changes
 	# --- Start Button (Left-Center, adjusted) ---
 	start_button.custom_minimum_size = Vector2(250, 80)
 	var horizontal_offset = 200  # further from left, closer to center
@@ -86,4 +106,7 @@ func format_time(seconds: int) -> String:
 
 func _on_menu_button_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/game.tscn")
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
