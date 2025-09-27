@@ -1,0 +1,37 @@
+[gd_scene load_steps=3 format=3 uid="uid://dao002vgv6du"]
+
+[ext_resource type="Texture2D" uid="uid://bnm1swmar3o01" path="res://assets/MenuBackground(1).png" id="1_3rljt"]
+[ext_resource type="Script" uid="uid://b2t3uwilw7ljw" path="res://scenes/game_ending.gd" id="1_60pss"]
+
+[node name="GameEnding" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_60pss")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 1536.0
+offset_bottom = 1024.0
+texture = ExtResource("1_3rljt")
+
+[node name="GameTitle" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_font_sizes/font_size = 64
+text = "Firelinked"
+horizontal_alignment = 1
+
+[node name="StartButton" type="Button" parent="."]
+unique_name_in_owner = true
+z_as_relative = false
+layout_mode = 0
+offset_right = 182.0
+offset_bottom = 98.0
+text = "Start Game"
