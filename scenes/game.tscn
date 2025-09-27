@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://c4salwugflrip"]
+[gd_scene load_steps=20 format=3 uid="uid://c4salwugflrip"]
 
 [ext_resource type="Script" uid="uid://bp4i28ybbk5i4" path="res://scripts/game.gd" id="1_p57ef"]
 [ext_resource type="Script" uid="uid://cru4dc0eb836x" path="res://scripts/player.gd" id="1_yqjtg"]
@@ -95,6 +95,12 @@ border_width_right = 2
 border_width_bottom = 2
 corner_detail = 6
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gee14"]
+size = Vector2(34, 30)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0tnpc"]
+size = Vector2(52, 51)
+
 [node name="Game" type="Node2D"]
 script = ExtResource("1_p57ef")
 
@@ -127,6 +133,7 @@ texture = ExtResource("2_lnu2h")
 [node name="Camera" type="Camera2D" parent="Player"]
 
 [node name="Hitbox" type="CollisionShape2D" parent="Player"]
+position = Vector2(0, 1)
 shape = SubResource("RectangleShape2D_iywne")
 
 [node name="Fire" type="StaticBody2D" parent="."]
@@ -208,6 +215,22 @@ value = 50.0
 show_percentage = false
 
 [node name="Enemy" type="CharacterBody2D" parent="."]
+position = Vector2(-24, 163)
 script = ExtResource("8_gee14")
+
+[node name="Hitbox" type="CollisionShape2D" parent="Enemy"]
+shape = SubResource("RectangleShape2D_gee14")
+
+[node name="Sprite2D" type="Sprite2D" parent="Enemy"]
+modulate = Color(1, 0, 1, 1)
+position = Vector2(0, 1.5258789e-05)
+scale = Vector2(0.2578125, 0.234375)
+texture = ExtResource("2_lnu2h")
+
+[node name="DetectionArea" type="Area2D" parent="Enemy"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Enemy/DetectionArea"]
+position = Vector2(-1, 0.5)
+shape = SubResource("RectangleShape2D_0tnpc")
 
 [connection signal="timeout" from="Fire/Timer" to="Fire" method="_on_timer_timeout"]

@@ -133,26 +133,32 @@ func swing_item():
 		# Check for enemies in swing range
 		check_swing_damage()
 
+# Add this to your player script
 func check_swing_damage():
 	# Create a temporary area to detect enemies in swing range
 	var space_state = get_world_2d().direct_space_state
-	var query = PhysicsPointQueryParameters2D.new()
-	var swing_range = 64.0  # Range of swing attack
+	var swing_range = 64.0
 	
-	# Check in a small arc in front of player
+	# Get direction towards mouse
 	var mouse_pos = get_global_mouse_position()
 	var direction = (mouse_pos - global_position).normalized()
-	var target_pos = global_position + direction * swing_range
 	
-	query.position = target_pos
-	query.collision_mask = 2  # Assuming enemies are on layer 2
+	# Create shape query for swing area
+	var query = PhysicsShapeQueryParameters2D.new()
+	var circle_shape = CircleShape2D.new()
+	circle_shape.radius = swing_range
+	query.shape = circle_shape
+	query.transform = Transform2D(0, global_position + direction * swing_range * 0.5)
+	query.collision_mask = 4  # Enemy layer (set enemies to layer 3, mask bit 4)
 	
-	var result = space_state.intersect_point(query)
-	for collision in result:
-		var body = collision.collider
-		if body.has_method("take_damage"):
+	var results = space_state.intersect_shape(query)
+	for result in results:
+		var body = result.collider
+		if body.has_method("take_damage") and body != self:
 			var current_item = get_selected_item()
-			var damage = current_item.get_damage() if current_item.has_method("get_damage") else 25.0
+			var damage = 25.0  # Default sword damage
+			if current_item and current_item.has_method("get_damage"):
+				damage = current_item.get_damage()
 			body.take_damage(damage)
 			print("Hit enemy for ", damage, " damage!")
 
