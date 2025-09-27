@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 [gd_scene load_steps=51 format=3 uid="uid://c4salwugflrip"]
+=======
+[gd_scene load_steps=43 format=3 uid="uid://c4salwugflrip"]
+>>>>>>> Stashed changes
 
 [ext_resource type="Script" uid="uid://bp4i28ybbk5i4" path="res://scripts/game.gd" id="1_p57ef"]
 [ext_resource type="Script" uid="uid://cru4dc0eb836x" path="res://scripts/player.gd" id="1_yqjtg"]
@@ -16,7 +20,7 @@
 [ext_resource type="Texture2D" uid="uid://b8jgvubnjd0x0" path="res://assets/Hana Caraka - Topdown Tileset [sample]/Tileset/Water/water - summer.png" id="9_1kice"]
 [ext_resource type="Texture2D" uid="uid://cicia88j2rnna" path="res://assets/Hana Caraka - Topdown Tileset [sample]/Props/Bridge - wood.png" id="11_5newe"]
 [ext_resource type="Texture2D" uid="uid://b0i1y3afb7qcr" path="res://assets/tree.png" id="12_dinhu"]
-[ext_resource type="Script" uid="uid://b31weklg532hv" path="res://scenes/tree.gd" id="13_trtic"]
+[ext_resource type="Script" uid="uid://b31weklg532hv" path="res://scripts/tree.gd" id="13_trtic"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_p57ef"]
 size = Vector2(128, 128)
@@ -351,9 +355,6 @@ content_margin_top = 2.0
 content_margin_right = 2.0
 content_margin_bottom = 2.0
 bg_color = Color(0.101960786, 0.101960786, 0.101960786, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
 border_width_bottom = 2
 corner_detail = 6
 
@@ -369,7 +370,7 @@ border_width_right = 2
 border_width_bottom = 2
 corner_detail = 6
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p57ef"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_trtic"]
 content_margin_left = 2.0
 content_margin_top = 2.0
 content_margin_right = 2.0
@@ -381,6 +382,16 @@ border_width_right = 2
 border_width_bottom = 2
 corner_detail = 6
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p57ef"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.56078434, 1, 0.35686275, 1)
+border_width_right = 2
+border_width_bottom = 2
+corner_detail = 6
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_kvuet"]
 size = Vector2(33.000008, 99.00001)
 
@@ -388,6 +399,8 @@ size = Vector2(33.000008, 99.00001)
 script = ExtResource("1_p57ef")
 
 [node name="Fire" type="StaticBody2D" parent="."]
+light_mask = 9
+visibility_layer = 9
 z_index = 1
 script = ExtResource("3_lnu2h")
 
@@ -548,6 +561,25 @@ offset_bottom = -105.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/background = SubResource("StyleBoxFlat_lbhrr")
+theme_override_styles/fill = SubResource("StyleBoxFlat_trtic")
+value = 50.0
+show_percentage = false
+
+[node name="LevelBar" type="ProgressBar" parent="GUI/GUIControl"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -576.0
+offset_top = -648.0
+offset_right = 576.0
+offset_bottom = -621.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/background = SubResource("StyleBoxFlat_lbhrr")
 theme_override_styles/fill = SubResource("StyleBoxFlat_p57ef")
 value = 50.0
 show_percentage = false
@@ -558,9 +590,9 @@ anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -36.0
-offset_top = 36.0
+offset_top = 62.0
 offset_right = 36.0
-offset_bottom = 81.0
+offset_bottom = 107.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
@@ -573,9 +605,10 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -20.0
-offset_right = 20.0
-offset_bottom = 23.0
+offset_left = -36.0
+offset_top = 27.0
+offset_right = 36.0
+offset_bottom = 72.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)

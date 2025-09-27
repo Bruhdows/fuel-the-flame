@@ -1,0 +1,40 @@
+[gd_scene load_steps=2 format=3 uid="uid://cr0ql3nrguhq0"]
+
+[ext_resource type="Script" uid="uid://i6li46h65ldw" path="res://scripts/upgrade_choice_button.gd" id="1_ksqk8"]
+
+[node name="UpgradeChoiceButton" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_ksqk8")
+
+[node name="BackgroundPanel" type="Panel" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="ContentContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="HeaderContainer" type="HBoxContainer" parent="ContentContainer"]
+layout_mode = 2
+
+[node name="IconTexture" type="TextureRect" parent="ContentContainer/HeaderContainer"]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="ContentContainer/HeaderContainer"]
+layout_mode = 2
+
+[node name="DescriptionLabel" type="Label" parent="ContentContainer"]
+layout_mode = 2
+
+[node name="EffectsContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="EffectLabel" type="Label" parent="EffectsContainer"]
+layout_mode = 2
