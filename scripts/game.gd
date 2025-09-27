@@ -13,4 +13,8 @@ func _ready() -> void:
 	sword.damage = 10
 	player.add_item(sword)
 	
-	var enemy = ENEMY.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE)
+	for n in 50:
+		var enemy = ENEMY.instantiate(PackedScene.GEN_EDIT_STATE_MAIN)
+		enemy.global_position = Vector2(50 * (n+1), 50 * (n+1))
+		enemy.player = player
+		add_child(enemy)
