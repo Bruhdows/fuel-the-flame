@@ -151,6 +151,9 @@ content_margin_right = 2.0
 content_margin_bottom = 2.0
 bg_color = Color(0.101960786, 0.101960786, 0.101960786, 1)
 border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
 corner_detail = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_iywne"]
@@ -159,6 +162,9 @@ content_margin_top = 2.0
 content_margin_right = 2.0
 content_margin_bottom = 2.0
 bg_color = Color(1, 1, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_bottom = 2
 corner_detail = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p57ef"]
@@ -167,13 +173,16 @@ content_margin_top = 2.0
 content_margin_right = 2.0
 content_margin_bottom = 2.0
 bg_color = Color(1, 0, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_bottom = 2
 corner_detail = 6
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_p57ef")
 
 [node name="TileMap" type="TileMap" parent="."]
-scale = Vector2(4, 4)
+scale = Vector2(1.4, 1.4)
 tile_set = SubResource("TileSet_gee14")
 format = 2
 
@@ -233,16 +242,17 @@ grow_vertical = 2
 script = ExtResource("5_iywne")
 
 [node name="FoodBar" type="ProgressBar" parent="GUI/Control"]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -159.0
-offset_top = -104.0
+offset_left = -160.0
+offset_top = -101.0
 offset_right = 176.0
-offset_bottom = -77.0
+offset_bottom = -74.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/background = SubResource("StyleBoxFlat_lbhrr")
@@ -251,16 +261,17 @@ value = 50.0
 show_percentage = false
 
 [node name="HealthBar" type="ProgressBar" parent="GUI/Control"]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -159.0
-offset_top = -137.0
+offset_left = -160.0
+offset_top = -132.0
 offset_right = 176.0
-offset_bottom = -110.0
+offset_bottom = -105.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/background = SubResource("StyleBoxFlat_lbhrr")
