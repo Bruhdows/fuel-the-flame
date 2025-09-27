@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://dao002vgv6du"]
 
 [ext_resource type="Texture2D" uid="uid://bnm1swmar3o01" path="res://assets/MenuBackground(1).png" id="1_3rljt"]
-[ext_resource type="Script" uid="uid://b2t3uwilw7ljw" path="res://scenes/game_ending.gd" id="1_60pss"]
+[ext_resource type="Script" uid="uid://b2t3uwilw7ljw" path="res://scripts/game_ending.gd" id="1_60pss"]
 
 [node name="GameEnding" type="Control"]
 layout_mode = 3
@@ -35,3 +35,11 @@ layout_mode = 0
 offset_right = 182.0
 offset_bottom = 98.0
 text = "Start Game"
+
+[node name="ScoreLabel" type="Label" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_colors/font_color = Color(1, 0.41960785, 0, 1)
+theme_override_font_sizes/font_size = 64
+text = "Final score"
