@@ -1,5 +1,7 @@
 extends CharacterBody2D
 
+@onready var fire: StaticBody2D = $"../Fire"
+
 var inventory = []
 var max_inventory_size = 5
 var selected_slot = 0
@@ -21,34 +23,6 @@ var food_consumption_rate = 5.0
 var movement_food_decay_rate = 0.5
 var is_moving = false
 var elapsed_time: float = 0.0
-
-# Base movement and combat stats
-var base_movement_speed = 400.0
-var base_swing_duration = 0.3
-var base_damage = 25.0
-
-# Current movement and combat stats (modified by upgrades)
-var movement_speed = 400.0
-var swing_duration = 0.3
-var damage_multiplier = 1.0
-var swing_speed_multiplier = 1.0
-var movement_speed_multiplier = 1.0
-
-# Upgrade effects
-var damage_reduction = 0.0
-var lifesteal = 0.0
-var damage_reflection = 0.0
-var health_drain_rate = 0.0
-var food_efficiency_multiplier = 1.0
-var starvation_immunity_time = 0.0
-var starvation_timer = 0.0
-
-# Special upgrade flags
-var has_blood_pact = false
-var has_chaos_magic = false
-var has_enemy_vision = false
-var chaos_timer = 0.0
-var chaos_interval = 30.0
 
 # Base movement and combat stats
 var base_movement_speed = 400.0
@@ -213,7 +187,7 @@ func swing_item():
 		
 		check_swing_damage()
 		check_tree_damage()
-
+		
 func check_swing_damage():
 	var space_state = get_world_2d().direct_space_state
 	var swing_range = 48.0
@@ -512,7 +486,14 @@ func use_selected_item():
 	if selected_slot < inventory.size() and inventory[selected_slot]:
 		var item = inventory[selected_slot]
 		
-		if item.has_method("get_food_value") && item.is_food():
+		if item.name == "Wood":
+			fire.current_value += 20
+			fire.fire_value.text = str(fire.current_value)
+			remove_item(selected_slot)
+			print("Consumed wood")
+			pass
+		
+		if item.is_food():
 			consume_food_item(item)
 
 # MODIFIED: Updated to handle quantity and food efficiency
@@ -522,6 +503,7 @@ func consume_food_item(food_item: ItemResource):
 	
 	current_food = min(max_food, current_food + final_food_value)
 	update_food_bar()
+	
 	print("Consumed ", food_item.name, " (+", final_food_value, " food)")
 	
 	# Reset starvation timer when eating

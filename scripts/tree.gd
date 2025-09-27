@@ -83,6 +83,10 @@ func break_tree():
 	await get_tree().create_timer(0.5).timeout
 	queue_free()
 
+func create_wood_item() -> ItemResource:
+	var texture = preload("res://assets/wood.png")
+	return ItemResource.new("Wood", texture, "", 1)
+
 func drop_wood_items():
 	for i in wood_drops:
 		var wood_item = create_wood_item()
@@ -98,7 +102,3 @@ func drop_wood_items():
 		
 		# Add slight delay between drops
 		await get_tree().create_timer(0.1).timeout
-
-func create_wood_item() -> ItemResource:
-	var texture = preload("res://assets/wood.png")
-	return ItemResource.new("Wood", texture, "A piece of wood", 1)

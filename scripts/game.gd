@@ -39,7 +39,7 @@ func create_sword_item() -> ItemResource:
 
 func create_wood_item() -> ItemResource:
 	var texture = preload("res://assets/wood.png")
-	return ItemResource.new("Wood", texture, "", 16)
+	return ItemResource.new("Wood", texture, "", 1)
 
 func _ready() -> void:
 	var sword = create_sword_item()

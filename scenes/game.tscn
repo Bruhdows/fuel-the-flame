@@ -1,21 +1,12 @@
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-[gd_scene load_steps=51 format=3 uid="uid://c4salwugflrip"]
-=======
-[gd_scene load_steps=43 format=3 uid="uid://c4salwugflrip"]
->>>>>>> Stashed changes
-=======
-[gd_scene load_steps=43 format=3 uid="uid://c4salwugflrip"]
->>>>>>> Stashed changes
+[gd_scene load_steps=49 format=3 uid="uid://c6oxbfa11gisf"]
 
 [ext_resource type="Script" uid="uid://bp4i28ybbk5i4" path="res://scripts/game.gd" id="1_p57ef"]
 [ext_resource type="Script" uid="uid://cru4dc0eb836x" path="res://scripts/player.gd" id="1_yqjtg"]
+[ext_resource type="PackedScene" uid="uid://b0rk1wxu4voay" path="res://scenes/fire.tscn" id="2_ca42v"]
 [ext_resource type="Texture2D" uid="uid://d1jrpl1u325vi" path="res://assets/Hana Caraka - Topdown Tileset [sample]/Props/Tree.png" id="2_gee14"]
-[ext_resource type="Texture2D" uid="uid://bxewcgaicsghl" path="res://icon.svg" id="2_lnu2h"]
 [ext_resource type="Texture2D" uid="uid://dxo6iwa6y15t6" path="res://assets/Hana Caraka - Topdown Tileset [sample]/Tileset/Seasonal/winter.png" id="2_u5sy4"]
 [ext_resource type="Texture2D" uid="uid://8njdheqll1jq" path="res://assets/Hana Caraka - Topdown Tileset [sample]/Tileset/dirt.png" id="3_0tnpc"]
 [ext_resource type="Texture2D" uid="uid://bciaavqpplyh1" path="res://assets/Hana Caraka - Topdown Tileset [sample]/Tileset/Seasonal/ice.png" id="3_gee14"]
-[ext_resource type="Script" uid="uid://duippwikiy61w" path="res://scripts/fire.gd" id="3_lnu2h"]
 [ext_resource type="Texture2D" uid="uid://bmewqoba8t7rv" path="res://assets/Hana Caraka - Topdown Tileset [sample]/Tileset/Extras/texture.png" id="4_kvpfn"]
 [ext_resource type="Texture2D" uid="uid://d4dyu4bvsgrso" path="res://assets/Hana Caraka - Topdown Tileset [sample]/Props/Grass.png" id="4_vtaks"]
 [ext_resource type="Script" uid="uid://dafpntkmhl2h1" path="res://scripts/control.gd" id="5_iywne"]
@@ -25,9 +16,6 @@
 [ext_resource type="Texture2D" uid="uid://cicia88j2rnna" path="res://assets/Hana Caraka - Topdown Tileset [sample]/Props/Bridge - wood.png" id="11_5newe"]
 [ext_resource type="Texture2D" uid="uid://b0i1y3afb7qcr" path="res://assets/tree.png" id="12_dinhu"]
 [ext_resource type="Script" uid="uid://b31weklg532hv" path="res://scripts/tree.gd" id="13_trtic"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_p57ef"]
-size = Vector2(128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_trtic"]
 atlas = ExtResource("5_kvuet")
@@ -359,6 +347,9 @@ content_margin_top = 2.0
 content_margin_right = 2.0
 content_margin_bottom = 2.0
 bg_color = Color(0.101960786, 0.101960786, 0.101960786, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
 border_width_bottom = 2
 corner_detail = 6
 
@@ -374,7 +365,7 @@ border_width_right = 2
 border_width_bottom = 2
 corner_detail = 6
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_trtic"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p57ef"]
 content_margin_left = 2.0
 content_margin_top = 2.0
 content_margin_right = 2.0
@@ -386,53 +377,13 @@ border_width_right = 2
 border_width_bottom = 2
 corner_detail = 6
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p57ef"]
-content_margin_left = 2.0
-content_margin_top = 2.0
-content_margin_right = 2.0
-content_margin_bottom = 2.0
-bg_color = Color(0.56078434, 1, 0.35686275, 1)
-border_width_right = 2
-border_width_bottom = 2
-corner_detail = 6
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_kvuet"]
 size = Vector2(33.000008, 99.00001)
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_p57ef")
 
-[node name="Fire" type="StaticBody2D" parent="."]
-light_mask = 9
-visibility_layer = 9
-z_index = 1
-script = ExtResource("3_lnu2h")
-
-[node name="Hitbox" type="CollisionShape2D" parent="Fire"]
-shape = SubResource("RectangleShape2D_p57ef")
-
-[node name="Icon" type="Sprite2D" parent="Fire"]
-modulate = Color(1, 0, 0, 1)
-texture = ExtResource("2_lnu2h")
-
-[node name="FireProgress" type="Label" parent="Fire"]
-unique_name_in_owner = true
-offset_left = -99.0
-offset_top = -98.0
-offset_right = 99.0
-offset_bottom = -71.0
-theme_override_colors/font_color = Color(1, 0.4, 0, 1)
-theme_override_colors/font_shadow_color = Color(0.4, 0, 0, 1)
-theme_override_colors/font_outline_color = Color(0.6, 0.2, 0, 1)
-theme_override_constants/shadow_offset_x = 2
-theme_override_constants/shadow_offset_y = 2
-theme_override_constants/shadow_outline_size = 1
-theme_override_font_sizes/font_size = 24
-horizontal_alignment = 1
-
-[node name="Timer" type="Timer" parent="Fire"]
-wait_time = 0.4
-autostart = true
+[node name="Fire" parent="." instance=ExtResource("2_ca42v")]
 
 [node name="Player" type="CharacterBody2D" parent="."]
 unique_name_in_owner = true
@@ -565,25 +516,6 @@ offset_bottom = -105.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/background = SubResource("StyleBoxFlat_lbhrr")
-theme_override_styles/fill = SubResource("StyleBoxFlat_trtic")
-value = 50.0
-show_percentage = false
-
-[node name="LevelBar" type="ProgressBar" parent="GUI/GUIControl"]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -576.0
-offset_top = -648.0
-offset_right = 576.0
-offset_bottom = -621.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_styles/background = SubResource("StyleBoxFlat_lbhrr")
 theme_override_styles/fill = SubResource("StyleBoxFlat_p57ef")
 value = 50.0
 show_percentage = false
@@ -594,9 +526,9 @@ anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -36.0
-offset_top = 62.0
+offset_top = 36.0
 offset_right = 36.0
-offset_bottom = 107.0
+offset_bottom = 81.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
@@ -609,10 +541,9 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -36.0
-offset_top = 27.0
-offset_right = 36.0
-offset_bottom = 72.0
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 23.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
@@ -634,5 +565,3 @@ texture = ExtResource("12_dinhu")
 position = Vector2(1.5, -0.5000057)
 scale = Vector2(0.99999964, 0.99999964)
 shape = SubResource("RectangleShape2D_kvuet")
-
-[connection signal="timeout" from="Fire/Timer" to="Fire" method="_on_timer_timeout"]
