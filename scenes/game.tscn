@@ -215,6 +215,7 @@ texture = ExtResource("2_lnu2h")
 [node name="Camera" type="Camera2D" parent="Player"]
 
 [node name="Hitbox" type="CollisionShape2D" parent="Player"]
+position = Vector2(1, 0)
 shape = SubResource("RectangleShape2D_iywne")
 
 [node name="Fire" type="StaticBody2D" parent="."]
