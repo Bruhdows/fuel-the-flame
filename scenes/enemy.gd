@@ -8,7 +8,7 @@ extends CharacterBody2D
 @export var attack_range: float = 50.0
 
 # References
-@onready var player: CharacterBody2D = %Player
+var player: CharacterBody2D
 var attack_timer: float = 0.0
 
 @onready var sprite: Sprite2D = $Sprite2D
@@ -17,25 +17,22 @@ var attack_timer: float = 0.0
 func _physics_process(delta):
 	attack_timer -= delta
 	
-	if player:
-		# Move toward player
-		var direction = global_position.direction_to(player.global_position)
-		velocity = direction * speed
-		
-		# Flip sprite
-		sprite.flip_h = velocity.x < 0
-		
-		# Attack if close enough
-		if global_position.distance_to(player.global_position) < attack_range and attack_timer <= 0:
-			attack_player()
-	else:
-		velocity = Vector2.ZERO
+	# Move toward player
+	var direction = global_position.direction_to(player.global_position)
+	velocity = direction * speed
+	
+	# Flip sprite
+	sprite.flip_h = velocity.x < 0
+	
+	# Attack if close enough
+	if global_position.distance_to(player.global_position) < attack_range and attack_timer <= 0:
+		attack_player()
 	
 	move_and_slide()
 
 func attack_player():
 	attack_timer = 1.5  # Cooldown
-	if player.has_method("take_damage"):
+	if player and player.has_method("take_damage"):
 		player.take_damage(attack_damage)
 
 func take_damage(amount: float):
