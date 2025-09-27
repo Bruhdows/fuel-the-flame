@@ -8,16 +8,11 @@ extends CharacterBody2D
 @export var attack_range: float = 50.0
 
 # References
-var player: CharacterBody2D = null
+@onready var player: CharacterBody2D = %Player
 var attack_timer: float = 0.0
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var detection_area: Area2D = $DetectionArea
-
-func _ready():
-	# Connect detection signals
-	detection_area.body_entered.connect(_on_player_entered)
-	detection_area.body_exited.connect(_on_player_exited)
 
 func _physics_process(delta):
 	attack_timer -= delta
@@ -52,11 +47,3 @@ func take_damage(amount: float):
 	
 	if health <= 0:
 		queue_free()
-
-func _on_player_entered(body):
-	if body.name == "Player":
-		player = body
-
-func _on_player_exited(body):
-	if body == player:
-		player = null
