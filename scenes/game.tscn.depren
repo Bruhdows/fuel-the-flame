@@ -207,6 +207,7 @@ layer_0/tile_data = PackedInt32Array(-393227, 65536, 1, -327691, 65536, 2, -2621
 unique_name_in_owner = true
 position = Vector2(-196, 122)
 script = ExtResource("1_yqjtg")
+speed = null
 
 [node name="Icon" type="Sprite2D" parent="Player"]
 scale = Vector2(0.5, 0.5)
