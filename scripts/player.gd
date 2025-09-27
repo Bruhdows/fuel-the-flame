@@ -9,10 +9,17 @@ var max_health = 100.0
 var current_health = 100.0
 var max_food = 100.0
 var current_food = 100.0
-var health_regen_rate = 10.0  # Health per second when regenerating
-var food_consumption_rate = 5.0  # Food consumed per health point regenerated
-var movement_food_decay_rate = 0.5  # Food lost per second when moving
+var health_regen_rate = 10.0
+var food_consumption_rate = 5.0
+var movement_food_decay_rate = 0.5
 var is_moving = false
+
+# Item holding system
+var held_item_sprite: Sprite2D
+var is_swinging = false
+var swing_duration = 0.3
+var swing_timer = 0.0
+var original_held_item_rotation = 0.0
 
 @onready var health_bar: ProgressBar = %HealthBar
 @onready var food_bar: ProgressBar = %FoodBar
@@ -23,33 +30,43 @@ signal health_changed(new_health: float)
 signal food_changed(new_food: float)
 signal player_died
 
-# Preload dropped item scene
 var dropped_item_scene = preload("res://scenes/dropped_item.tscn")
 
 func _ready():
+	setup_held_item_sprite()
 	update_health_bar()
 	update_food_bar()
+	update_held_item_display()
+
+func setup_held_item_sprite():
+	held_item_sprite = Sprite2D.new()
+	held_item_sprite.position = Vector2(20, 20)  # Position relative to player
+	held_item_sprite.scale = Vector2(3, 3)
+	held_item_sprite.z_index = 1
+	add_child(held_item_sprite)
 
 func get_input():
 	var input_direction = Input.get_vector("left", "right", "up", "down")
 	velocity = input_direction * 400
 	
-	# Check if player is moving
 	is_moving = input_direction.length() > 0
 	
 	handle_slot_selection()
 	
-	# Use item input
 	if Input.is_action_just_pressed("use_item"):
 		use_selected_item()
+	
+	# Sword swing input
+	if Input.is_action_just_pressed("swing") and not is_swinging:
+		swing_item()
 
 func handle_slot_selection():
 	for i in range(5):
 		if Input.is_action_just_pressed("slot_" + str(i + 1)):
 			selected_slot = i
 			slot_selected.emit(i)
+			update_held_item_display()
 	
-	# Drop item
 	if Input.is_action_just_pressed("drop_item"):
 		drop_selected_item()
 
@@ -57,23 +74,98 @@ func _physics_process(delta):
 	get_input()
 	move_and_slide()
 	
-	# Handle health and food systems
 	handle_food_decay(delta)
 	handle_health_regeneration(delta)
+	handle_swing_animation(delta)
+	update_held_item_position()
+
+func handle_swing_animation(delta):
+	if is_swinging:
+		swing_timer += delta
+		var progress = swing_timer / swing_duration
+		
+		if progress >= 1.0:
+			# Swing complete
+			is_swinging = false
+			swing_timer = 0.0
+			held_item_sprite.rotation = original_held_item_rotation
+		else:
+			# Animate swing (rotate from -45° to +45° and back)
+			var swing_angle = sin(progress * PI) * PI/4  # 45 degrees max
+			held_item_sprite.rotation = original_held_item_rotation + swing_angle
+
+func update_held_item_position():
+	if held_item_sprite:
+		# Point towards mouse cursor
+		var mouse_pos = get_global_mouse_position()
+		var direction = (mouse_pos - global_position).normalized()
+		var angle = direction.angle()
+		
+		if not is_swinging:
+			held_item_sprite.rotation = angle
+			original_held_item_rotation = angle
+		
+		# Position item relative to player
+		held_item_sprite.position = direction * 32
+
+
+func update_held_item_display():
+	if held_item_sprite:
+		var current_item = get_selected_item()
+		if current_item and current_item.texture:
+			held_item_sprite.texture = current_item.texture
+			held_item_sprite.visible = true
+		else:
+			held_item_sprite.visible = false
+
+func get_selected_item() -> ItemResource:
+	if selected_slot < inventory.size() and inventory[selected_slot]:
+		return inventory[selected_slot]
+	return null
+
+func swing_item():
+	var current_item = get_selected_item()
+	if current_item and current_item.has_method("is_weapon") and current_item.is_weapon():
+		is_swinging = true
+		swing_timer = 0.0
+		print("Swinging ", current_item.name, "!")
+		
+		# Check for enemies in swing range
+		check_swing_damage()
+
+func check_swing_damage():
+	# Create a temporary area to detect enemies in swing range
+	var space_state = get_world_2d().direct_space_state
+	var query = PhysicsPointQueryParameters2D.new()
+	var swing_range = 64.0  # Range of swing attack
+	
+	# Check in a small arc in front of player
+	var mouse_pos = get_global_mouse_position()
+	var direction = (mouse_pos - global_position).normalized()
+	var target_pos = global_position + direction * swing_range
+	
+	query.position = target_pos
+	query.collision_mask = 2  # Assuming enemies are on layer 2
+	
+	var result = space_state.intersect_point(query)
+	for collision in result:
+		var body = collision.collider
+		if body.has_method("take_damage"):
+			var current_item = get_selected_item()
+			var damage = current_item.get_damage() if current_item.has_method("get_damage") else 25.0
+			body.take_damage(damage)
+			print("Hit enemy for ", damage, " damage!")
 
 func handle_food_decay(delta):
-	# Only lose food when moving around, and only very slowly
 	if is_moving and current_food > 0:
 		current_food = max(0, current_food - movement_food_decay_rate * delta)
 		update_food_bar()
 
 func handle_health_regeneration(delta):
-	# Only regenerate health if we have food and health is not full
 	if current_food > 0 and current_health < max_health:
 		var health_to_regen = health_regen_rate * delta
 		var food_needed = health_to_regen * food_consumption_rate / health_regen_rate
 		
-		# Check if we have enough food
 		if current_food >= food_needed:
 			current_health = min(max_health, current_health + health_to_regen)
 			current_food = max(0, current_food - food_needed)
@@ -84,6 +176,7 @@ func add_item(item: ItemResource) -> bool:
 	if inventory.size() < max_inventory_size:
 		inventory.append(item)
 		inventory_changed.emit()
+		update_held_item_display()
 		return true
 	return false
 
@@ -91,8 +184,8 @@ func drop_selected_item():
 	if selected_slot < inventory.size() and inventory[selected_slot]:
 		var item_to_drop = inventory[selected_slot]
 		remove_item(selected_slot)
+		update_held_item_display()
 		
-		# Create dropped item in world
 		var dropped_item = dropped_item_scene.instantiate()
 		dropped_item.set_item(item_to_drop)
 		dropped_item.global_position = global_position + Vector2(0, -96)
@@ -103,6 +196,7 @@ func remove_item(slot_index: int):
 	if slot_index >= 0 and slot_index < inventory.size():
 		inventory.remove_at(slot_index)
 		inventory_changed.emit()
+		update_held_item_display()
 
 func get_item(slot_index: int) -> ItemResource:
 	if slot_index >= 0 and slot_index < inventory.size():
@@ -113,8 +207,7 @@ func use_selected_item():
 	if selected_slot < inventory.size() and inventory[selected_slot]:
 		var item = inventory[selected_slot]
 		
-		# Check if item is consumable (food)
-		if item.has_method("get_food_value"):
+		if item.has_method("get_food_value") && item.is_food():
 			consume_food_item(item)
 
 func consume_food_item(food_item: ItemResource):
@@ -122,8 +215,10 @@ func consume_food_item(food_item: ItemResource):
 	current_food = min(max_food, current_food + food_value)
 	update_food_bar()
 	print("Consumed ", food_item.name, " (+", food_value, " food)")
+	
+	# Remove consumed item
+	remove_item(selected_slot)
 
-# Health system utility methods
 func take_damage(amount: float):
 	current_health = max(0, current_health - amount)
 	update_health_bar()
@@ -165,7 +260,7 @@ func is_alive() -> bool:
 	return current_health > 0
 
 func is_hungry() -> bool:
-	return current_food < max_food * 0.3  # Hungry when food is below 30%
+	return current_food < max_food * 0.3
 
 func is_starving() -> bool:
 	return current_food <= 0
@@ -173,7 +268,6 @@ func is_starving() -> bool:
 func die():
 	print("Player died!")
 	player_died.emit()
-	# Add death logic here (respawn, game over screen, etc.)
 
 func update_health_bar():
 	if health_bar:
