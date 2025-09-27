@@ -11,14 +11,12 @@ class_name ItemResource
 @export var food_value: float = 0.0
 @export var quantity: int = 1  # Added quantity property
 
-<<<<<<< HEAD
 func _init(item_name: String = "", item_texture: Texture2D = null, item_description: String = "", item_stack_size: int = 1, type: String = "generic", item_quantity: int = 1):
-=======
+
 # NEW: how much this item adds to a fire when consumed
 @export var fuel_value: int = 0
 
 func _init(item_name: String = "", item_texture: Texture2D = null, item_description: String = "", item_stack_size: int = 1, type: String = "generic"):
->>>>>>> 4540cfa (AAAAAAAA)
 	name = item_name
 	texture = item_texture
 	description = item_description
@@ -38,7 +36,6 @@ func get_damage() -> float:
 func get_food_value() -> float:
 	return food_value
 
-<<<<<<< HEAD
 func is_stackable() -> bool:
 	return stack_size > 1
 
@@ -64,7 +61,7 @@ func duplicate_item() -> ItemResource:
 	new_item.damage = damage
 	new_item.food_value = food_value
 	return new_item
-=======
+
 func get_fuel_value() -> int:
 	return fuel_value
->>>>>>> 4540cfa (AAAAAAAA)
+
