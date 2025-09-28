@@ -189,7 +189,7 @@ func is_valid_tree_position(position: Vector2) -> bool:
 
 func spawn_tree_at_position(position: Vector2):
 	"""Spawn a tree at the specified position"""
-	var tree = TREE.instantiate(PackedScene.GEN_EDIT_STATE_MAIN)
+	var tree = TREE.instantiate()
 	tree.global_position = position
 	
 	# Add tree to tracking arrays
@@ -337,8 +337,8 @@ func spawn_random_enemy() -> void:
 		return
 	
 	var spawn_position = get_random_spawn_position()
-	var enemy = ENEMY.instantiate(PackedScene.GEN_EDIT_STATE_MAIN)
-	enemy.global_position = spawn_position
+	var enemy = ENEMY.instantiate()
+	enemy.position = spawn_position
 	enemy.player = player
 	
 	# Set up enemy experience value based on wave
@@ -474,7 +474,7 @@ func get_random_ring_spawn_position(inner_radius: float = 1000.0, outer_radius: 
 func spawn_wave_enemies() -> void:
 	for i in enemies_per_wave:
 		var spawn_position = get_random_spawn_position()
-		var enemy = ENEMY.instantiate(PackedScene.GEN_EDIT_STATE_MAIN)
+		var enemy = ENEMY.instantiate()
 		enemy.global_position = spawn_position
 		enemy.player = player
 		
