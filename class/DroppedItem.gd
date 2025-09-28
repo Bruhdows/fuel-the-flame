@@ -2,7 +2,7 @@ extends Area2D
 class_name DroppedItem
 
 @export var item_resource: ItemResource
-@onready var sprite = $Sprite2D
+@onready var sprite: Sprite2D = %ItemTexture
 @onready var collision = $CollisionShape2D
 
 func _ready():

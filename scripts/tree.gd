@@ -4,7 +4,7 @@ var max_health: float = 60.0  # Reduced for faster testing
 var current_health: float = 60.0
 var wood_drops: int = 3
 
-@onready var sprite: Sprite2D = $Sprite2D
+@onready var icon: Sprite2D = $Icon
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 var dropped_item_scene = preload("res://scenes/dropped_item.tscn")
 
