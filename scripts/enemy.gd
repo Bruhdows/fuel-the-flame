@@ -9,15 +9,18 @@ var player: CharacterBody2D
 var attack_timer: float = 0.0
 
 @onready var sprite: Sprite2D = $Sprite2D
-@onready var detection_area: Area2D = $DetectionArea
 
-func _physics_process(delta):
+# Add the death signal
+signal died
+
+func _physics_process(delta: float) -> void:
 	attack_timer -= delta
 	
-	# Move toward player
-	var direction = global_position.direction_to(player.global_position)
-	velocity = direction * speed
+	if not player:
+		return
 	
+	var direction: Vector2 = global_position.direction_to(player.global_position)
+	velocity = direction * speed
 	sprite.flip_h = velocity.x < 0
 	
 	if global_position.distance_to(player.global_position) < attack_range and attack_timer <= 0:
@@ -25,17 +28,18 @@ func _physics_process(delta):
 	
 	move_and_slide()
 
-func attack_player():
+func attack_player() -> void:
 	attack_timer = 1.5
 	if player and player.has_method("take_damage"):
 		player.take_damage(attack_damage)
 
-func take_damage(amount: float):
+func take_damage(amount: float) -> void:
 	health -= amount
-	var oldModulate = sprite.modulate
+	var old_modulate: Color = sprite.modulate
 	sprite.modulate = Color.RED
 	await get_tree().create_timer(0.1).timeout
-	sprite.modulate = oldModulate
+	sprite.modulate = old_modulate
 	
 	if health <= 0:
+		died.emit()
 		queue_free()

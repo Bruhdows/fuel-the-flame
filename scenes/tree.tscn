@@ -11,6 +11,7 @@ script = ExtResource("1_vplca")
 
 [node name="Icon" type="Sprite2D" parent="."]
 z_index = 1
+y_sort_enabled = true
 position = Vector2(7.6293945e-06, -9.536743e-07)
 scale = Vector2(2.5, 2.5)
 texture = ExtResource("2_viusy")

@@ -11,9 +11,9 @@ var current_wave: int = 1
 var enemies_per_wave: int = 5
 var enemies_spawned_this_wave: int = 0
 var wave_timer: float = 0.0
-var wave_duration: float = 30.0  # 30 seconds per wave
+var wave_duration: float = 30.0
 var spawn_timer: float = 0.0
-var spawn_interval: float = 2.0  # Spawn enemy every 2 seconds
+var spawn_interval: float = 2.0
 var game_time: float = 0.0
 
 var current_experience: float = 0.0
@@ -21,50 +21,48 @@ var experience_to_next_level: float = 100.0
 var current_level: int = 1
 var experience_multiplier: float = 1.5
 
-var min_spawn_distance: float = 10.0 * 50
-var max_spawn_distance: float = 20.0 * 50
+var min_spawn_distance: float = 500.0
+var max_spawn_distance: float = 1000.0
 
-var tree_spawn_radius: float = 10.0 * 50
-var min_tree_distance_from_player: float = 10.0 * 50
+var tree_spawn_radius: float = 2500.0
+var min_tree_distance_from_player: float = 500.0
 var max_trees_in_world: int = 150
 var tree_spawn_timer: float = 0.0
 var tree_spawn_interval: float = 1.0
 var trees_per_spawn_attempt: int = 3
-var active_trees: Array = []
-var spawned_tree_positions: Array = []
-var min_tree_distance: float = 3.0 * 5
+var active_trees: Array[Node2D] = []
+var spawned_tree_positions: Array[Vector2] = []
+var min_tree_distance: float = 150.0
 
-var active_enemies: Array = []
+var active_enemies: Array[Node2D] = []
 
-signal enemy_died(enemy, experience_value)
-signal player_leveled_up(new_level)
-signal tree_spawned(tree_position)
+signal enemy_died(enemy: Node2D, experience_value: float)
+signal player_leveled_up(new_level: int)
+signal tree_spawned(tree_position: Vector2)
 
-var dropped_item_scene = preload("res://scenes/dropped_item.tscn")
+var dropped_item_scene: PackedScene = preload("res://scenes/dropped_item.tscn")
 
 func create_sword_item() -> ItemResource:
-	var texture = preload("res://assets/wooden_sword.png")
-	return ItemResource.new("Wooden Sword", texture, "An weak wooden sword", 1, "weapon")
+	var texture: Texture2D = preload("res://assets/wooden_sword.png")
+	var sword: ItemResource = ItemResource.new("Wooden Sword", texture, "An weak wooden sword", 1, "weapon")
+	sword.damage = 10
+	return sword
 
 func create_wood_item() -> ItemResource:
-	var texture = preload("res://assets/wood.png")
+	var texture: Texture2D = preload("res://assets/wood.png")
 	return ItemResource.new("Wood", texture, "", 1)
 
 func _ready() -> void:
-	var sword = create_sword_item()
-	sword.damage = 10
-	player.add_item(sword)
+	player.add_item(create_sword_item())
 	
 	update_wave_label()
 	update_time_label()
-	
 	setup_tree_spawning()
 	
 	if player.has_signal("experience_gained"):
 		player.experience_gained.connect(_on_player_gained_experience)
 
-func setup_tree_spawning():
-	"""Initialize the tree spawning system"""
+func setup_tree_spawning() -> void:
 	spawn_initial_trees()
 
 func _process(delta: float) -> void:
@@ -88,126 +86,104 @@ func _process(delta: float) -> void:
 	
 	cleanup_distant_trees()
 
-func spawn_initial_trees():
-	"""Spawn initial trees around the player when the game starts"""
-	var initial_tree_count = 50
+func spawn_initial_trees() -> void:
+	var initial_tree_count: int = 50
 	
-	for i in initial_tree_count:
-		var tree_position = get_random_tree_spawn_position()
+	for i: int in initial_tree_count:
+		var tree_position: Vector2 = get_random_tree_spawn_position()
 		if tree_position != Vector2.ZERO:
 			spawn_tree_at_position(tree_position)
-		
 		await get_tree().process_frame
 
-func attempt_tree_spawning():
-	"""Attempt to spawn new trees if below maximum count"""
+func attempt_tree_spawning() -> void:
 	if active_trees.size() >= max_trees_in_world:
 		return
 	
-	var trees_to_spawn = min(trees_per_spawn_attempt, max_trees_in_world - active_trees.size())
+	var trees_to_spawn: int = mini(trees_per_spawn_attempt, max_trees_in_world - active_trees.size())
 	
-	for i in trees_to_spawn:
-		var tree_position = get_random_tree_spawn_position()
+	for i: int in trees_to_spawn:
+		var tree_position: Vector2 = get_random_tree_spawn_position()
 		if tree_position != Vector2.ZERO:
 			spawn_tree_at_position(tree_position)
 
 func get_random_tree_spawn_position() -> Vector2:
-	"""Get a random valid position for tree spawning"""
-	var player_pos = player.global_position
-	var max_attempts = 20
+	var player_pos: Vector2 = player.global_position
+	var max_attempts: int = 20
 	
-	for attempt in max_attempts:
-		var angle = randf() * TAU
+	for attempt: int in max_attempts:
+		var angle: float = randf() * TAU
+		var distance: float = randf_range(min_tree_distance_from_player, tree_spawn_radius)
+		var spawn_offset: Vector2 = Vector2.from_angle(angle) * distance
+		var potential_position: Vector2 = player_pos + spawn_offset
 		
-		var distance = randf_range(min_tree_distance_from_player, tree_spawn_radius)
-		
-		var spawn_offset = Vector2.from_angle(angle) * distance
-		var potential_position = player_pos + spawn_offset
-		
-		if is_valid_tree_position():
+		if is_valid_tree_position(potential_position):
 			return potential_position
 	
 	return Vector2.ZERO
 
-func is_valid_tree_position() -> bool:
-	"""Check if a position is valid for tree spawning"""
-	var distance_to_player = position.distance_to(player.global_position)
+func is_valid_tree_position(position: Vector2) -> bool:
+	var distance_to_player: float = position.distance_to(player.global_position)
 	if distance_to_player < min_tree_distance_from_player:
 		return false
 	
-	for tree_pos in spawned_tree_positions:
-		var distance_to_tree = position.distance_to(tree_pos)
+	for tree_pos: Vector2 in spawned_tree_positions:
+		var distance_to_tree: float = position.distance_to(tree_pos)
 		if distance_to_tree < min_tree_distance:
 			return false
 	
-	for enemy in active_enemies:
+	for enemy: Node2D in active_enemies:
 		if is_instance_valid(enemy):
-			var distance_to_enemy = position.distance_to(enemy.global_position)
-			if distance_to_enemy < 2.0 * 50:
+			var distance_to_enemy: float = position.distance_to(enemy.global_position)
+			if distance_to_enemy < 100.0:
 				return false
 	
 	return true
 
-func spawn_tree_at_position(pos: Vector2):
-	"""Spawn a tree at the specified position"""
-	var tree = TREE.instantiate()
-	tree.global_position = pos
+func spawn_tree_at_position(position: Vector2) -> void:
+	var tree: Node2D = TREE.instantiate()
+	tree.global_position = position
 	
 	active_trees.append(tree)
-	spawned_tree_positions.append(pos)
+	spawned_tree_positions.append(position)
 	
 	setup_tree_properties(tree)
-	
 	add_child(tree)
-	
-	# Emit signal for other systems
-	tree_spawned.emit(pos)
-	
-	print("Tree spawned at: ", pos)
+	tree_spawned.emit(position)
 
-func setup_tree_properties(tree: Node):
-	"""Configure tree properties and connections"""
-	# Add tree to a group for easy management
+func setup_tree_properties(tree: Node2D) -> void:
 	tree.add_to_group("trees")
 	
-	# Connect tree destruction signal if available
 	if tree.has_signal("tree_destroyed"):
 		tree.tree_destroyed.connect(_on_tree_destroyed)
 	
-	# Set random tree variant if your tree scene supports it
 	if tree.has_method("set_tree_variant"):
-		var variant = randi() % 3  # Assuming 3 tree variants
+		var variant: int = randi() % 3
 		tree.set_tree_variant(variant)
 	
-	# Random scale variation for visual diversity
-	var scale_variation = randf_range(0.8, 1.2)
+	var scale_variation: float = randf_range(0.8, 1.2)
 	tree.scale = Vector2(scale_variation, scale_variation)
 
-func cleanup_distant_trees():
-	"""Remove trees that are too far from the player to maintain performance"""
-	var player_pos = player.global_position
-	var cleanup_distance = tree_spawn_radius + 10.0 * 50  # Extra buffer
+func cleanup_distant_trees() -> void:
+	var player_pos: Vector2 = player.global_position
+	var cleanup_distance: float = tree_spawn_radius + 500.0
 	
-	for i in range(active_trees.size() - 1, -1, -1):  # Iterate backwards
-		var tree = active_trees[i]
+	for i: int in range(active_trees.size() - 1, -1, -1):
+		var tree: Node2D = active_trees[i]
 		if not is_instance_valid(tree):
-			# Remove invalid tree references
 			active_trees.remove_at(i)
 			if i < spawned_tree_positions.size():
 				spawned_tree_positions.remove_at(i)
 			continue
 		
-		var distance_to_player = tree.global_position.distance_to(player_pos)
+		var distance_to_player: float = tree.global_position.distance_to(player_pos)
 		if distance_to_player > cleanup_distance:
-			# Remove distant tree
 			remove_tree(i)
 
-func remove_tree(index: int):
-	"""Remove a tree by index"""
+func remove_tree(index: int) -> void:
 	if index < 0 or index >= active_trees.size():
 		return
 	
-	var tree = active_trees[index]
+	var tree: Node2D = active_trees[index]
 	if is_instance_valid(tree):
 		tree.queue_free()
 	
@@ -215,182 +191,109 @@ func remove_tree(index: int):
 	if index < spawned_tree_positions.size():
 		spawned_tree_positions.remove_at(index)
 
-func _on_tree_destroyed(tree_node: Node):
-	"""Handle when a tree is destroyed (e.g., by player chopping)"""
-	var index = active_trees.find(tree_node)
+func _on_tree_destroyed(tree_node: Node2D) -> void:
+	var index: int = active_trees.find(tree_node)
 	if index != -1:
-		# Award experience for chopping tree
-		add_experience(15.0)  # 15 XP for chopping a tree
+		add_experience(15.0)
 		
-		# Drop wood item
-		var wood_item = create_wood_item()
+		var wood_item: ItemResource = create_wood_item()
 		if player.has_method("add_item_at_position"):
 			player.add_item_at_position(wood_item, tree_node.global_position)
 		
-		# Remove from tracking
 		active_trees.remove_at(index)
 		if index < spawned_tree_positions.size():
 			spawned_tree_positions.remove_at(index)
-		
-		print("Tree destroyed! Gained wood and experience.")
 
-# Enhanced spawn method that considers tree positions
 func get_random_spawn_position() -> Vector2:
-	"""Get a random position around the player at minimum distance, avoiding trees"""
-	var player_pos = player.global_position
-	var max_attempts = 30  # More attempts to avoid trees
+	var player_pos: Vector2 = player.global_position
+	var max_attempts: int = 30
 	
-	for attempt in max_attempts:
-		# Generate random angle (0 to 2π radians)
-		var angle = randf() * TAU
+	for attempt: int in max_attempts:
+		var angle: float = randf() * TAU
+		var distance: float = randf_range(min_spawn_distance, max_spawn_distance)
+		var spawn_offset: Vector2 = Vector2.from_angle(angle) * distance
+		var potential_position: Vector2 = player_pos + spawn_offset
 		
-		# Generate random distance between min and max spawn distance
-		var distance = randf_range(min_spawn_distance, max_spawn_distance)
-		
-		# Calculate spawn position using polar coordinates
-		var spawn_offset = Vector2.from_angle(angle) * distance
-		var potential_position = player_pos + spawn_offset
-		
-		# Check if position is not too close to trees
-		var too_close_to_tree = false
-		for tree_pos in spawned_tree_positions:
-			if potential_position.distance_to(tree_pos) < 3.0 * 50:  # 3 blocks from trees
+		var too_close_to_tree: bool = false
+		for tree_pos: Vector2 in spawned_tree_positions:
+			if potential_position.distance_to(tree_pos) < 150.0:
 				too_close_to_tree = true
 				break
 		
 		if not too_close_to_tree:
 			return potential_position
 	
-	# Fallback to original method if no clear space found
-	var angle = randf() * TAU
-	var distance = randf_range(min_spawn_distance, max_spawn_distance)
-	var spawn_offset = Vector2.from_angle(angle) * distance
+	var angle: float = randf() * TAU
+	var distance: float = randf_range(min_spawn_distance, max_spawn_distance)
+	var spawn_offset: Vector2 = Vector2.from_angle(angle) * distance
 	return player_pos + spawn_offset
 
-# Additional tree management methods
-func get_trees_near_position(position: Vector2, radius: float) -> Array:
-	"""Get all trees within a certain radius of a position"""
-	var nearby_trees = []
-	for tree in active_trees:
-		if is_instance_valid(tree):
-			if tree.global_position.distance_to(position) <= radius:
-				nearby_trees.append(tree)
-	return nearby_trees
-	
-func create_food_item() -> ItemResource:
-	var texture = preload("res://assets/rotten.png")
-	var item = ItemResource.new("Rotten Beef", texture, "", 1, "food")
-	item.food_value = 20
-	return item
-
-func clear_trees_in_area(position: Vector2, radius: float):
-	"""Clear all trees in a specific area (useful for building/events)"""
-	var trees_to_remove = get_trees_near_position(position, radius)
-	for tree in trees_to_remove:
-		var index = active_trees.find(tree)
-		if index != -1:
-			remove_tree(index)
-
-func get_tree_count() -> int:
-	"""Get current number of active trees"""
-	return active_trees.size()
-
-# Keep all your existing methods unchanged below this line
 func spawn_random_enemy() -> void:
 	if not player:
 		return
 	
-	var spawn_position = get_random_spawn_position()
-	var enemy = ENEMY.instantiate()
+	var spawn_position: Vector2 = get_random_spawn_position()
+	var enemy: CharacterBody2D = ENEMY.instantiate()
 	enemy.position = spawn_position
 	enemy.player = player
 	
-	# Set up enemy experience value based on wave
-	var base_exp = 25.0
-	var wave_multiplier = 1.0 + (current_wave - 1) * 0.1  # 10% more exp per wave
-	var enemy_exp_value = base_exp * wave_multiplier
+	var base_exp: float = 25.0
+	var wave_multiplier: float = 1.0 + (current_wave - 1) * 0.1
+	var enemy_exp_value: float = base_exp * wave_multiplier
 	
-	# Connect enemy death signal for experience
 	if enemy.has_signal("died"):
 		enemy.died.connect(_on_enemy_died.bind(enemy, enemy_exp_value))
 	elif enemy.has_method("set_experience_value"):
 		enemy.set_experience_value(enemy_exp_value)
 	
-	# Track active enemies
 	active_enemies.append(enemy)
-	
 	add_child(enemy)
 	enemies_spawned_this_wave += 1
 
-func _on_enemy_died(enemy_node: Node, exp_value: float):
-	# Remove from active enemies list
+func _on_enemy_died(enemy_node: Node2D, exp_value: float) -> void:
 	if enemy_node in active_enemies:
 		active_enemies.erase(enemy_node)
-	
-	if randf() > 0.1:
-		var item_to_drop = create_food_item()
-		var dropped_item = dropped_item_scene.instantiate()
+		
+	if randf() < 0.2:
+		var item_to_drop: ItemResource = create_food_item()
+		var dropped_item: DroppedItem = dropped_item_scene.instantiate()
 		dropped_item.set_item(item_to_drop)
-		dropped_item.global_position = global_position + Vector2(0, -96)
+		dropped_item.global_position = enemy_node.global_position
 		get_parent().add_child(dropped_item)
 	
-	# Award experience to player
 	add_experience(exp_value)
-	if randf() > 0.1:
-		var item_to_drop = create_food_item()
-		var dropped_item = dropped_item_scene.instantiate()
-		dropped_item.set_item(item_to_drop)
-		dropped_item.global_position = global_position + Vector2(0, -96)
-		get_parent().add_child(dropped_item)
-	
-	# Emit signal for any other systems that need to know
 	enemy_died.emit(enemy_node, exp_value)
-	
-	print("Enemy died! Gained ", exp_value, " experience")
 
-func _on_player_gained_experience(amount: float):
+func _on_player_gained_experience(amount: float) -> void:
 	add_experience(amount)
 
-func add_experience(amount: float):
+func add_experience(amount: float) -> void:
 	current_experience += amount
 	
 	while current_experience >= experience_to_next_level:
 		level_up()
-	
-	# Update the experience bar
-	update_experience_bar()
-	
-	print("Current XP: ", current_experience, "/", experience_to_next_level)
 
-func level_up():
-	# Calculate overflow experience
-	var overflow_exp = current_experience - experience_to_next_level
+func level_up() -> void:
+	var overflow_exp: float = current_experience - experience_to_next_level
 	
-	# Level up
 	current_level += 1
 	current_experience = overflow_exp
-	
-	# Calculate new experience requirement
 	experience_to_next_level = calculate_experience_requirement(current_level)
 	
-	# Update UI
-	update_experience_bar()
-	
-	# Emit level up signal
 	player_leveled_up.emit(current_level)
 	
-	# Trigger upgrade choices (connect to your upgrade manager)
-	var upgrade_manager = get_node_or_null("/root/UpgradeManager")
+	var upgrade_manager: Node = get_node_or_null("/root/UpgradeManager")
 	if upgrade_manager:
 		upgrade_manager.level_up()
-	
-	print("LEVEL UP! Now level ", current_level)
-	print("Next level requires: ", experience_to_next_level, " XP")
+
+func create_food_item() -> ItemResource:
+	var texture: Texture2D = preload("res://assets/rotten.png")
+	var item: ItemResource = ItemResource.new("Rotten Beef", texture, "", 1, "food")
+	item.food_value = 20
+	return item
 
 func calculate_experience_requirement(level: int) -> float:
-	# Formula: base_exp * (multiplier ^ (level - 1))
-	# Example: Level 1->2: 100, Level 2->3: 150, Level 3->4: 225, etc.
-	var base_exp = 100.0
+	var base_exp: float = 100.0
 	return base_exp * pow(experience_multiplier, level - 1)
 
 func advance_wave() -> void:
@@ -398,17 +301,13 @@ func advance_wave() -> void:
 	enemies_spawned_this_wave = 0
 	wave_timer = 0.0
 	
-	# Increase difficulty each wave
-	enemies_per_wave += 2  # 2 more enemies per wave
-	spawn_interval = max(0.5, spawn_interval - 0.1)  # Faster spawning, minimum 0.5 seconds
+	enemies_per_wave += 2
+	spawn_interval = maxf(0.5, spawn_interval - 0.1)
 	
 	update_wave_label()
 	
-	# Award bonus experience for surviving a wave
-	var wave_bonus_exp = 50.0 * current_wave
+	var wave_bonus_exp: float = 50.0 * current_wave
 	add_experience(wave_bonus_exp)
-	
-	print("Wave ", current_wave, " started! Bonus XP: ", wave_bonus_exp)
 
 func update_wave_label() -> void:
 	if wave_label:
@@ -416,83 +315,18 @@ func update_wave_label() -> void:
 
 func update_time_label() -> void:
 	if time_label:
-		var minutes = int(game_time) / 60
-		var seconds = int(game_time) % 60
+		var minutes: int = int(game_time) / 60
+		var seconds: int = int(game_time) % 60
 		time_label.text = "%02d:%02d" % [minutes, seconds]
 
-# Alternative spawn method for spawning in a ring around player
-func get_random_ring_spawn_position(inner_radius: float = 1000.0, outer_radius: float = 1500.0) -> Vector2:
-	"""Spawn in a ring around the player for more controlled spawning"""
-	var player_pos = player.global_position
-	
-	# Random angle
-	var angle = randf() * TAU
-	
-	# Random distance in ring
-	var distance = randf_range(inner_radius, outer_radius)
-	
-	# Calculate position
-	var spawn_offset = Vector2.from_angle(angle) * distance
-	return player_pos + spawn_offset
-
-# Method to spawn multiple enemies at once (for wave start)
-func spawn_wave_enemies() -> void:
-	for i in enemies_per_wave:
-		var spawn_position = get_random_spawn_position()
-		var enemy = ENEMY.instantiate()
-		enemy.global_position = spawn_position
-		enemy.player = player
-		
-		# Set up experience for this enemy
-		var base_exp = 25.0
-		var wave_multiplier = 1.0 + (current_wave - 1) * 0.1
-		var enemy_exp_value = base_exp * wave_multiplier
-		
-		if enemy.has_signal("died"):
-			enemy.died.connect(_on_enemy_died.bind(enemy, enemy_exp_value))
-		
-		active_enemies.append(enemy)
-		add_child(enemy)
-		
-		# Add small delay between spawns to avoid all spawning at once
-		await get_tree().create_timer(0.2).timeout
-	
-	enemies_spawned_this_wave = enemies_per_wave
-
-# Method to clear all enemies (useful for wave transitions)
-func clear_all_enemies() -> void:
-	var enemies = get_tree().get_nodes_in_group("enemies")  # Assumes enemies are in "enemies" group
-	for enemy in enemies:
-		if enemy in active_enemies:
-			active_enemies.erase(enemy)
-		enemy.queue_free()
-
-# Debug functions
-func add_debug_experience(amount: float = 50.0):
-	"""Call this function to test experience gain"""
-	add_experience(amount)
-
-func _input(event):
-	# Debug: Press X to gain experience (remove this in final game)
-	if event.is_action_pressed("ui_accept"):  # Change to any debug key
-		add_debug_experience(25.0)
-	
-	# Debug: Press T to spawn tree manually
-	if event.is_action_pressed("ui_select"):  # Change to any debug key
-		var tree_pos = get_random_tree_spawn_position()
-		if tree_pos != Vector2.ZERO:
-			spawn_tree_at_position(tree_pos)
-
-# Getters for other systems
 func get_current_level() -> int:
 	return current_level
 
 func get_experience_percentage() -> float:
-	return (current_experience / experience_to_next_level)
+	return current_experience / experience_to_next_level
 
 func get_total_experience() -> float:
-	# Calculate total experience gained across all levels
-	var total = current_experience
-	for i in range(1, current_level):
+	var total: float = current_experience
+	for i: int in range(1, current_level):
 		total += calculate_experience_requirement(i)
 	return total
