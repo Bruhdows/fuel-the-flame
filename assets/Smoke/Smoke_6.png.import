@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ciifr5byhseuc"
-path="res://.godot/imported/Smoke Dark - 2_7.png-dc4fb932ac9fd10b6b173f78e1e391bd.ctex"
+uid="uid://bmujpygl6ojeu"
+path="res://.godot/imported/Smoke_6.png-41fac7a24236890fc325290a5c45e08f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Pixel fire asset pack v1.2/Pixel Fire Asset Pack Colored/fire asset smoke/Smoke Dark - 2/Smoke Dark - 2_7.png"
-dest_files=["res://.godot/imported/Smoke Dark - 2_7.png-dc4fb932ac9fd10b6b173f78e1e391bd.ctex"]
+source_file="res://assets/Smoke/Smoke_6.png"
+dest_files=["res://.godot/imported/Smoke_6.png-41fac7a24236890fc325290a5c45e08f.ctex"]
 
 [params]
 

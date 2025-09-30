@@ -10,6 +10,7 @@ var elapsed_time: float = 0.0
 func _ready() -> void:
 	fire_value.text = str(current_value)
 	$FireAnimation.play("Burn")
+	$FireAnimation.play("Smoke")
 
 func _process(delta: float) -> void:
 	elapsed_time += delta

@@ -6,7 +6,7 @@ extends Control
 
 func _ready() -> void:
 	_position_ui()
-	
+	print("Game ending loaded")
 	var final_time: int = 0
 	if get_tree().root.has_meta("final_game_time"):
 		final_time = get_tree().root.get_meta("final_game_time")
@@ -38,11 +38,12 @@ func _position_ui() -> void:
 		200,
 		(screen_size.y - start_button.size.y) / 2 + 50
 	)
-
-func _on_menu_button_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/game.tscn")
-
+	
 func format_time(seconds: int) -> String:
 	var minutes: int = seconds / 60
 	var secs: int = seconds % 60
 	return "%02d:%02d" % [minutes, secs]
+
+
+func _on_start_button_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/game.tscn")
