@@ -1,13 +1,56 @@
-[gd_scene load_steps=5 format=3 uid="uid://wtupsuect0s4"]
+[gd_scene load_steps=11 format=3 uid="uid://wtupsuect0s4"]
 
 [ext_resource type="Script" uid="uid://b76ab6ypktc3q" path="res://scripts/enemy.gd" id="1_md0e3"]
-[ext_resource type="Texture2D" uid="uid://bxewcgaicsghl" path="res://icon.svg" id="2_4ra3w"]
+[ext_resource type="Texture2D" uid="uid://drdhetmgj6rf5" path="res://assets/Apocalypse Character Pack/Zombie/Idle.png" id="2_md0e3"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4ra3w"]
+atlas = ExtResource("2_md0e3")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5uy6h"]
+atlas = ExtResource("2_md0e3")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c4w8v"]
+atlas = ExtResource("2_md0e3")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xwavj"]
+atlas = ExtResource("2_md0e3")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nenq2"]
+atlas = ExtResource("2_md0e3")
+region = Rect2(128, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_md484"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4ra3w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5uy6h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c4w8v")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xwavj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nenq2")
+}],
+"loop": true,
+"name": &"idle_front",
+"speed": 5.0
+}]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_gee14"]
-size = Vector2(34, 30)
+size = Vector2(29, 49)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0tnpc"]
-size = Vector2(52, 51)
+size = Vector2(59, 65)
 
 [node name="Enemy" type="CharacterBody2D"]
 collision_layer = 15
@@ -15,19 +58,21 @@ collision_mask = 14
 platform_on_leave = 2
 script = ExtResource("1_md0e3")
 
-[node name="Hitbox" type="CollisionShape2D" parent="."]
-z_index = 3
-shape = SubResource("RectangleShape2D_gee14")
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+scale = Vector2(2.1, 2.1)
+sprite_frames = SubResource("SpriteFrames_md484")
+animation = &"idle_front"
+autoplay = "idle_front"
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-modulate = Color(1, 0, 1, 1)
-z_index = 2
-position = Vector2(0, 1.5258789e-05)
-scale = Vector2(0.2578125, 0.234375)
-texture = ExtResource("2_4ra3w")
+[node name="Hitbox" type="CollisionShape2D" parent="."]
+light_mask = 0
+visibility_layer = 4
+z_index = 3
+position = Vector2(0, 6)
+shape = SubResource("RectangleShape2D_gee14")
 
 [node name="DetectionArea" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea"]
-position = Vector2(-1, 0.5)
+position = Vector2(0, 6)
 shape = SubResource("RectangleShape2D_0tnpc")

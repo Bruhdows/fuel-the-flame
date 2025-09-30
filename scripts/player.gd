@@ -46,7 +46,6 @@ var has_enemy_vision: bool = false
 var chaos_timer: float = 0.0
 var chaos_interval: float = 30.0
 
-var held_item_sprite: Sprite2D
 var is_swinging: bool = false
 var swing_timer: float = 0.0
 var original_held_item_rotation: float = 0.0
@@ -56,6 +55,7 @@ var player_level: int = 1
 
 @onready var health_bar: ProgressBar = %HealthBar
 @onready var food_bar: ProgressBar = %FoodBar
+@onready var held_item_sprite: Sprite2D = %HeldItem
 
 signal inventory_changed
 signal slot_selected(slot_index: int)
@@ -68,7 +68,6 @@ signal level_up(new_level: int)
 var dropped_item_scene: PackedScene = preload("res://scenes/dropped_item.tscn")
 
 func _ready() -> void:
-	setup_held_item_sprite()
 	update_health_bar()
 	update_food_bar()
 	update_held_item_display()
@@ -79,13 +78,6 @@ func _ready() -> void:
 
 func _on_level_up_choices(choices: Array[UpgradeChoice]) -> void:
 	get_tree().paused = true
-
-func setup_held_item_sprite() -> void:
-	held_item_sprite = Sprite2D.new()
-	held_item_sprite.position = Vector2.ZERO
-	held_item_sprite.scale = Vector2(3, 3)
-	held_item_sprite.z_index = 1
-	add_child(held_item_sprite)
 
 func _process(delta: float) -> void:
 	elapsed_time += delta
@@ -138,20 +130,30 @@ func handle_swing_animation(delta: float) -> void:
 			swing_timer = 0.0
 			held_item_sprite.rotation = original_held_item_rotation
 		else:
-			var swing_angle: float = sin(progress * PI) * PI/4
-			held_item_sprite.rotation = original_held_item_rotation + swing_angle
+			var swing_angle: float = sin(progress * PI) * PI / 4
+			var flip_multiplier = -1 if held_item_sprite.flip_h else 1
+			held_item_sprite.rotation = original_held_item_rotation + swing_angle * flip_multiplier
 
 func update_held_item_position() -> void:
 	if held_item_sprite:
 		var mouse_pos: Vector2 = get_global_mouse_position()
 		var direction: Vector2 = (mouse_pos - global_position).normalized()
-		var angle: float = direction.angle()
-		
+		var flip = direction.x < 0
+		held_item_sprite.flip_h = flip
+
+		var base_angle = direction.angle()
+		var angle_offset = deg_to_rad(40) if not flip else deg_to_rad(-40)
+		var angle = base_angle + angle_offset
+
 		if not is_swinging:
-			held_item_sprite.rotation = angle
-			original_held_item_rotation = angle
-		
-		held_item_sprite.position = direction * 32
+			held_item_sprite.rotation = angle + (PI if flip else 0)
+			original_held_item_rotation = held_item_sprite.rotation
+
+		var texture_size = held_item_sprite.texture.get_size()
+		var offset = Vector2(0, texture_size.y / 2)
+		offset = offset.rotated(held_item_sprite.rotation)
+
+		held_item_sprite.position = direction * 32 - offset
 
 func update_held_item_display() -> void:
 	if held_item_sprite:

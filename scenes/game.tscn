@@ -399,6 +399,11 @@ autoplay = "idle_front"
 position = Vector2(1.5, 4)
 shape = SubResource("RectangleShape2D_iywne")
 
+[node name="HeldItem" type="Sprite2D" parent="Player"]
+unique_name_in_owner = true
+position = Vector2(-44, 0)
+scale = Vector2(2.5, 2.5)
+
 [node name="TileMaps" type="Node" parent="."]
 
 [node name="SnowTileMap" type="TileMap" parent="TileMaps"]

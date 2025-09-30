@@ -8,7 +8,7 @@ extends CharacterBody2D
 var player: CharacterBody2D
 var attack_timer: float = 0.0
 
-@onready var sprite: Sprite2D = $Sprite2D
+@onready var sprite: AnimatedSprite2D = $Sprite2D
 
 # Add the death signal
 signal died
